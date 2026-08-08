@@ -43,13 +43,20 @@
 
   <main>
     <section class="hero">
-      <h1>Procedures, company rules and live site conditions — <em>by voice, hands free.</em></h1>
-      <p class="usp">First market: UAE construction — extreme weather, strict HSE, large frontline workforces.</p>
-      <div class="creed-chips" role="note">
-        <span>Retrieves</span><span>Explains</span><span>Cites</span><span class="never">Never guesses</span>
+      <div class="hero-copy">
+        <h1>Procedures, company rules and live site conditions — <em>by voice, hands free.</em></h1>
+        <p class="usp">First market: UAE construction — extreme weather, strict HSE, large frontline workforces.</p>
+        <div class="creed-chips" role="note">
+          <span>Retrieves</span><span>Explains</span><span>Cites</span><span class="never">Never guesses</span>
+        </div>
+        <div class="hero-cta">
+          <a class="cta" href="/test"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg> Try the live agent</a>
+        </div>
       </div>
-      <div class="hero-cta">
-        <a class="cta" href="/test"><svg class="icon" aria-hidden="true"><use href="#i-mic"/></svg> Try the live agent</a>
+      <div class="hero-visual" id="hero-visual" aria-hidden="true">
+        <div class="spotlight" id="spotlight"></div>
+        <spline-viewer url="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+                       loading-anim-type="spinner-small-dark"></spline-viewer>
       </div>
     </section>
 
@@ -145,6 +152,7 @@
     <p>Hackathon demo — Team 21 is fictional. Built with ElevenLabs Agents, context.dev and Devin.</p>
   </footer>
 
+  <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
   <script src="/static/app.js" defer></script>
   <script>
     if ("serviceWorker" in navigator) {

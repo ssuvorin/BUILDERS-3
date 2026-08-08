@@ -62,3 +62,15 @@ function setText(id, value) {
 
 document.getElementById("refresh-btn").addEventListener("click", checkConditions);
 checkConditions();
+
+/* ---------- hero spotlight follows the cursor ---------- */
+
+const visual = document.getElementById("hero-visual");
+const spotlight = document.getElementById("spotlight");
+if (visual && spotlight && matchMedia("(hover: hover)").matches) {
+  visual.addEventListener("mousemove", (e) => {
+    const rect = visual.getBoundingClientRect();
+    spotlight.style.left = `${e.clientX - rect.left}px`;
+    spotlight.style.top = `${e.clientY - rect.top}px`;
+  });
+}
