@@ -24,8 +24,19 @@
   <main class="test-main">
     <section class="test-hero">
       <h1>Talk to HeatSafe</h1>
-      <p>Press the voice bubble in the corner, allow the microphone, and ask.
-         You can interrupt it at any time.</p>
+      <p>Press the button, allow the microphone, and ask. You can interrupt at any time.</p>
+    </section>
+
+    <section class="voice" aria-live="polite">
+      <button id="talk-btn" class="orb" type="button" data-state="idle" aria-label="Start conversation">
+        <svg class="orb-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+          <line x1="12" x2="12" y1="19" y2="22"/>
+        </svg>
+      </button>
+      <p class="voice-status" id="voice-status">Tap to start</p>
+      <div class="transcript" id="transcript" hidden></div>
     </section>
 
     <section class="strip" id="conditions-strip" aria-live="polite">
@@ -54,6 +65,6 @@
       no source → refusal · stop/go decisions defer to the supervisor.</p>
   </main>
 
-  <script src="/static/test.js" defer></script>
+  <script type="module" src="/static/test.js"></script>
 </body>
 </html>
