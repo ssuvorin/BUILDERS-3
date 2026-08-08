@@ -29,12 +29,28 @@ function setState(state) {
   talkBtn.setAttribute("aria-label", state === "idle" ? "Start conversation" : "End conversation");
 }
 
+function cleanMessage(text) {
+  return (text ?? "")
+    .replace(/\[[a-z][a-z\s,'!?-]{0,40}\]/gi, "") // ElevenLabs v3 audio tags: [confident], [whispers]...
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function addLine(source, text) {
+  const clean = cleanMessage(text);
+  if (!clean) return;
   transcript.hidden = false;
-  const line = document.createElement("p");
-  line.className = source === "user" ? "t-user" : "t-agent";
-  line.textContent = text;
-  transcript.append(line);
+  const bubble = document.createElement("div");
+  bubble.className = source === "user" ? "msg msg-user" : "msg msg-agent";
+  const label = document.createElement("span");
+  label.className = "msg-label";
+  label.textContent = source === "user" ? "You" : "HeatSafe";
+  const body = document.createElement("p");
+  body.className = "msg-text";
+  body.textContent = clean;
+  bubble.append(label, body);
+  transcript.append(bubble);
   transcript.scrollTop = transcript.scrollHeight;
 }
 

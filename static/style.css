@@ -69,6 +69,13 @@
 
 button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
+/* hover effects only where a real pointer exists — no sticky hover on touch */
+@media (hover: none) {
+  button.ghost:hover { background: transparent; }
+  .cta:hover { background: var(--brand); }
+  .ghost-cta:hover { background: transparent; }
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -87,7 +94,7 @@ main { max-width: var(--content-max-w); margin: 0 auto; padding: 0 1.5rem 4rem; 
 .top {
   height: var(--header-h);
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: 0 1.5rem;
+  padding: 0 max(1.5rem, env(safe-area-inset-right)) 0 max(1.5rem, env(safe-area-inset-left));
   border-bottom: 1px solid var(--border);
   position: sticky; top: 0; z-index: 10;
   background: color-mix(in srgb, var(--bg) 85%, transparent);
