@@ -133,6 +133,7 @@ phrasings are pinned per language in `agent/prompt.md`.)
 
 ## Deployment (demo)
 
-Deployed at `https://13.143.65.45.sslip.io` — FastAPI behind Caddy
-(automatic Let's Encrypt TLS via sslip.io), managed by systemd
-(`heatsafe.service`); secrets in `/etc/heatsafe.env` on the VPS.
+Deployed at
+`https://royalty-mathematical-engineers-improvement.trycloudflare.com` —
+FastAPI on the VPS, exposed through a Cloudflare quick tunnel, managed by
+systemd (`heatsafe.service`); secrets in `/etc/heatsafe.env` on the VPS.
