@@ -208,3 +208,13 @@ def index() -> FileResponse:
 @app.get("/test")
 def test_console() -> FileResponse:
     return FileResponse(Path(ROOT_DIR) / "static" / "test.html")
+
+
+@app.get("/flow")
+def architecture_flow() -> FileResponse:
+    """The architecture and decision-flow diagram, rendered.
+
+    Lives in docs/ because it is documentation, but GitHub serves .html as
+    source rather than rendering it — so it gets a route.
+    """
+    return FileResponse(Path(ROOT_DIR) / "docs" / "architecture-flow.html")
