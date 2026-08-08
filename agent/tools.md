@@ -185,3 +185,16 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
   "response_mocks": []
 }
 ```
+
+### language_detection (system tool)
+
+Add via **Add tool → System → Language detection** in the agent's Tools section
+(languages themselves are configured in the Agent tab → Additional languages).
+
+```json
+{
+  "type": "system",
+  "name": "language_detection",
+  "description": "Switch the conversation language when the worker speaks a complete meaningful phrase in a different supported language, or explicitly asks to switch. Do NOT switch because a tool result or document quote is in English — company documents are English; translate their substance into the conversation language instead. Do not switch on single borrowed words, names, or garbled fragments."
+}
+```
