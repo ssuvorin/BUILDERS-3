@@ -1,5 +1,7 @@
 # HeatSafe Voice Copilot
 
+🎥 **[Watch the demo](https://www.loom.com/share/453bf5e27ab646ef82943947304f0707)** — a real voice conversation with the agent, including the live data fetch.
+
 HeatSafe Technologies builds voice-first operational safety copilots for
 frontline teams in high-risk environments — construction, oil & gas,
 utilities, ports and logistics. The engine is one and the same for every
