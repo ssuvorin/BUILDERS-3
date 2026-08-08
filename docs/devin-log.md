@@ -2,7 +2,7 @@
 
 Judging criterion: *"codebase health and how well you steer the tools."*
 
-The steering record for the HeatSafe build, 8 August 2026, Team 24.
+The steering record for the HeatSafe build, 8 August 2026, Team 21.
 
 **How we steered.** The repo was set up spec-first, before any feature work. A
 project constitution (`.specify/memory/constitution.md`) fixed the non-negotiables —
