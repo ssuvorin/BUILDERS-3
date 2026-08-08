@@ -16,6 +16,11 @@ whose SOPs become the copilot's source of truth. In the UAE the live-
 conditions half is even sharper: wind on high-rise scaffolds plus heat
 stress rules (midday break, temperature limits).
 
+The same system compresses onboarding: a new worker gets procedure answers
+at the point of work instead of waiting weeks to absorb the job from
+colleagues — and the answers come from company documents, so institutional
+knowledge stays in the company rather than in one person's head.
+
 ## 2. Architecture
 
 ```
@@ -118,6 +123,10 @@ Deliberate simplifications that keep it honest but small:
   pushed proactively ("wind will cross your scaffold limit at 14:00").
 - **Escalation that completes the loop**: "ask your supervisor" becomes a
   one-tap voice message to the supervisor with the question attached.
+- **Voice hazard logging**: experienced workers log hazards and near misses
+  by voice as they find them; entries land in the company's register with
+  location and timestamp — knowledge capture at the point of work, the
+  reverse direction of the same pipeline.
 - **Offline mode**: cached SOPs + last-known weather with an explicit
   staleness warning — named as a real-world requirement, deliberately not
   faked in the demo.

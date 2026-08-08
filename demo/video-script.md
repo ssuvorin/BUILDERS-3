@@ -12,6 +12,8 @@ else tight. Record AFTER the agent + deploy are live.
 > it quotes internet numbers that aren't the company's policy. This is for
 > the worker on site; the company plugs in its own SOPs so the answers are
 > theirs, not the internet's. Voice, because both hands are on the ladder.
+> And the same system compresses onboarding — a new worker gets answers at
+> the point of work instead of waiting weeks to learn the job.
 
 ## 2. Live demo (~2 min) — three moments, in this order
 

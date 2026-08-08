@@ -21,6 +21,12 @@ authority: **company data > UAE regional law and official guidance >
 manufacturer documentation > general web** (and if general web is the only
 source, it says so out loud).
 
+The same system compresses onboarding: new workers get answers at the point
+of work instead of waiting weeks to learn the job, and the company's
+knowledge stays in the company rather than in one person's head. (v2 closes
+the loop: experienced workers log hazards by voice as they find them — see
+TECH-SPEC extensibility.)
+
 **HeatSafe retrieves. HeatSafe explains. HeatSafe cites. HeatSafe never
 guesses.** Stop/go decisions always belong to the supervisor.
 
