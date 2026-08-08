@@ -14,6 +14,9 @@ else tight. Record AFTER the agent + deploy are live.
 > theirs, not the internet's. Voice, because both hands are on the ladder.
 > And the same system compresses onboarding — a new worker gets answers at
 > the point of work instead of waiting weeks to learn the job.
+>
+> ![Uploading image.png…]()
+
 
 ## 2. Live demo (~2 min) — three moments, in this order
 
