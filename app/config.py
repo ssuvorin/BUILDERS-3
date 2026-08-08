@@ -6,4 +6,6 @@ ROOT_DIR = Path(__file__).resolve().parent.parent
 DEMO_DATA_DIR = Path(os.getenv("DEMO_DATA_DIR", ROOT_DIR / "demo-data"))
 CONTEXT_DEV_API_KEY = os.getenv("CONTEXT_DEV_API_KEY", "")
 SITE_LOCATION = os.getenv("SITE_LOCATION", "Dubai Marina")
+SITE_LAT = os.getenv("SITE_LAT", "25.080")
+SITE_LON = os.getenv("SITE_LON", "55.140")
 CONTEXT_DEV_BASE_URL = os.getenv("CONTEXT_DEV_BASE_URL", "https://api.context.dev/v1")
