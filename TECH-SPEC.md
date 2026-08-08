@@ -97,11 +97,18 @@ Deliberate simplifications that keep it honest but small:
   matter more than recall.
 - SOPs are pre-loaded markdown files; no ingestion pipeline.
 - One fictional company, one site location (env-configurable).
-- 12 pytest evals run the tool layer directly (`make eval`) — deterministic,
+- 17 pytest evals run the tool layer directly (`make eval`) — deterministic,
   no network, weather readings injected as fixtures.
 
 ## 5. Extensibility (v2)
 
+- **New verticals, same engine**: the agent prompt is a generic core plus a
+  per-client config block; the backend parses thresholds from whatever
+  document pack is loaded and takes the site from config. Onboarding an
+  oil & gas operator, a grid utility or a port terminal changes the
+  document pack, the live-data mix and the escalation contacts — not the
+  rules, code or eval discipline. Worked examples in
+  `agent/deployment-configs.md`.
 - **Real SOP ingestion**: upload PDF/DOCX, chunk + embed, per-company
   namespaces; threshold extraction becomes an LLM-verified structured pass
   instead of a table regex.

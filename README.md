@@ -1,9 +1,13 @@
 # HeatSafe Voice Copilot
 
 HeatSafe Technologies builds voice-first operational safety copilots for
-frontline teams in high-risk environments. This is the first product, focused
-on construction, deployed for a fictional client: **Meridian Construction LLC**,
-a Dubai-based UAE contractor.
+frontline teams in high-risk environments — construction, oil & gas,
+utilities, ports and logistics. The engine is one and the same for every
+vertical; what changes per client is a config block and a document pack
+(see `agent/deployment-configs.md`).
+
+This demo is the first deployment: construction, for a fictional client —
+**Meridian Construction LLC**, a Dubai-based UAE contractor.
 
 Workers and supervisors get hands-free, on-demand answers to two questions:
 
@@ -89,7 +93,7 @@ Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":3,"thresholds":3}
 make eval
 ```
 
-12 cases from the eval spec (section B). Nearly half verify refusal/deferral
+17 cases from the eval spec (section B). Nearly half verify refusal/deferral
 behaviour — in a work-at-height domain, that is the product.
 
 ## ElevenLabs agent setup
