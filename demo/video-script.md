@@ -5,7 +5,7 @@ else tight. Record AFTER the agent + deploy are live.
 
 ## 1. Problem & who it's for (~30 sec)
 
-> Construction workers get stuck mid-task with their hands full — on a
+> 5.5 hours per week searching for project data, over $80bn spent on rework linked to bad data globally in the construction industry. Construction workers get stuck mid-task with their hands full — on a
 > scaffold, in gloves. The answers they need live in two places: the
 > company's own SOPs, which nobody re-reads on site, and live conditions —
 > is the wind over the limit right now? A generic chatbot is dangerous here:
