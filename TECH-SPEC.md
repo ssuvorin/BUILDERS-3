@@ -29,10 +29,12 @@ Worker voice ⇄ ElevenLabs Agent (system prompt: agent/prompt.md)
         │                              must refuse, not invent
         ├── POST /tools/check_weather  context.dev /web/extract pulls live
         │                              wind/gust/temp for the site location;
-        │                              compared in app/verdict.py against
-        │                              thresholds PARSED from the SOP table
-        │                              (app/sops.py, regex over MC-POL-014) —
-        │                              nothing hardcoded
+        │                              app/verdict.py assesses them against
+        │                              the bands PARSED from MER-SOP-021
+        │                              (app/policy.py): normal/restricted/
+        │                              suspended wind, heat bands, and the
+        │                              UAE summer midday break — nothing
+        │                              hardcoded
         └── POST /tools/web_lookup     context.dev /web/scrape/markdown for
                                        official guidance (HSE etc.), explicitly
                                        ranked below company SOPs
@@ -40,9 +42,10 @@ Worker voice ⇄ ElevenLabs Agent (system prompt: agent/prompt.md)
 
 Data flow for the key demo moment: worker asks "can we work on the scaffold?"
 → agent calls `check_weather("working on scaffolding")` → backend fetches live
-wind via context.dev → matches the activity to the 30 km/h row parsed from the
-Meridian policy → returns go/no-go + figures + source → agent speaks the
-verdict, names MC-POL-014, and defers the final call to the supervisor.
+wind via context.dev → assesses it against the restricted (17 mph) and
+suspended (22 mph) bands parsed from the Meridian policy → returns the band +
+figures + source → agent speaks the verdict, names MER-SOP-021, and defers
+the final call to the supervisor.
 
 Source precedence (enforced in the agent prompt, supported by tool design):
 **company data > UAE regional law and official guidance > manufacturer docs

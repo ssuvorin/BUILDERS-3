@@ -3,38 +3,40 @@
 Run with: make eval
 Nearly half the cases verify refusal/deferral behaviour — that is the product.
 """
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from fastapi.testclient import TestClient
 
 from app import sops
 from app.main import app
-from app.sops import Threshold
+from app.policy import extract_policy
 from app.verdict import assess
 from app.weather import WeatherReading
 
 client = TestClient(app)
 CHUNKS = sops.load_chunks()
-THRESHOLDS = sops.extract_thresholds(CHUNKS)
+POLICY = extract_policy(CHUNKS)
+TZ = ZoneInfo("Asia/Dubai")
+WINTER_NOON = datetime(2026, 1, 15, 12, 45, tzinfo=TZ)  # outside midday-break window
 
 
-def _wind_threshold() -> Threshold:
-    t = sops.match_threshold("working on scaffolding", THRESHOLDS)
-    assert t is not None
-    return t
+def _kmh(mph: float) -> float:
+    return mph * 1.60934
 
 
 # --- B1: it should answer -------------------------------------------------
 
 def test_b1_1_sop_question_returns_steps_and_source():
-    resp = client.post("/tools/search_sops", json={"query": "how do I check my harness"})
+    resp = client.post("/tools/search_sops", json={"query": "how do I inspect my harness"})
     results = resp.json()["results"]
     assert results, "expected a match for a question covered by the SOP"
-    top = results[0]
-    assert "MC-SOP-021" in top["source"]
-    assert "harness" in top["text"].lower()
+    assert "MER-SOP-014" in results[0]["source"]
+    assert "harness" in results[0]["text"].lower()
 
 
 def test_b1_2_casual_phrasing_same_doc():
-    formal = client.post("/tools/search_sops", json={"query": "harness inspection procedure"})
+    formal = client.post("/tools/search_sops", json={"query": "harness inspection before use"})
     casual = client.post(
         "/tools/search_sops", json={"query": "uh so how do i like check this harness thing"}
     )
@@ -42,18 +44,18 @@ def test_b1_2_casual_phrasing_same_doc():
 
 
 def test_b1_4_wind_under_threshold_is_go():
-    reading = WeatherReading(available=True, wind_speed_kmh=12.0, temp_c=15.0)
-    result = assess(reading, "working on scaffolding", THRESHOLDS)
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(10), temp_c=30.0)
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
     assert result["verdict"] == "go"
-    assert result["limit_kmh"] == _wind_threshold().limit_value
-    assert "MC-POL-014" in result["threshold_source"]
+    assert "MER-SOP-021" in result["policy_source"]
 
 
 # --- B2: it should NOT answer — the differentiator ------------------------
 
-def test_b2_6_uncovered_procedure_returns_nothing():
+def test_b2_6_mewp_procedure_not_covered_returns_nothing():
+    """Deliberate gap from the demo-data README: MEWP setup is not covered."""
     resp = client.post(
-        "/tools/search_sops", json={"query": "how do I recalibrate the tunnel boring machine"}
+        "/tools/search_sops", json={"query": "set up the MEWP for the east elevation"}
     )
     body = resp.json()
     assert body["results"] == []
@@ -61,44 +63,78 @@ def test_b2_6_uncovered_procedure_returns_nothing():
 
 
 def test_b2_7_sop_overrides_general_web_guidance():
-    """Meridian's limit (30 km/h) is stricter than common external guidance (38 km/h).
-    The threshold must come from the SOP, and the source must be named."""
-    t = _wind_threshold()
-    assert t.limit_value == 30.0
-    assert t.unit == "km/h"
-    assert "MC-POL-014" in t.source_doc
-    # 34 km/h: fine per general external guidance, no-go per Meridian
-    reading = WeatherReading(available=True, wind_speed_kmh=34.0, temp_c=15.0)
-    result = assess(reading, "scaffold work", THRESHOLDS)
-    assert result["verdict"] == "no-go"
+    """The money shot: Meridian restricts work above 6 m from 17 mph sustained —
+    stricter than commonly cited external guidance. Parsed from the SOP."""
+    assert POLICY is not None
+    assert POLICY.restricted_wind_mph == 17.0
+    assert "MER-SOP-021" in POLICY.source_doc
+    # 20 mph sustained: fine per general guidance, restricted per Meridian
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(20), temp_c=30.0)
+    result = assess(reading, "working on the scaffold", POLICY, now=WINTER_NOON)
+    assert result["verdict"] == "restricted"
+    assert any("no work above 6 m" in r.lower() for r in result["reasons"])
 
 
 def test_b2_10_go_up_decision_defers_to_supervisor():
-    reading = WeatherReading(available=True, wind_speed_kmh=15.0, temp_c=12.0)
-    result = assess(reading, "working on scaffolding", THRESHOLDS)
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(10), temp_c=30.0)
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
     assert "supervisor" in result["reminder"].lower()
 
 
-# --- B3: weather logic -----------------------------------------------------
+# --- B3: weather & sequencing logic -----------------------------------------
 
-def test_b3_12_wind_above_threshold_no_go_with_figures():
-    reading = WeatherReading(available=True, wind_speed_kmh=40.0, temp_c=15.0)
-    result = assess(reading, "working on scaffolding", THRESHOLDS)
+def test_b3_12_wind_suspended_band_stops_external_work():
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(25), temp_c=30.0)
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
     assert result["verdict"] == "no-go"
-    assert result["wind_speed_kmh"] == 40.0
-    assert result["limit_kmh"] == 30.0
-    assert "MC-POL-014" in result["threshold_source"]
+    assert any("suspended band" in r for r in result["reasons"])
+    assert "MER-SOP-021" in result["policy_source"]
 
 
 def test_b3_12b_gusts_count_against_limit():
-    reading = WeatherReading(available=True, wind_speed_kmh=22.0, wind_gust_kmh=36.0, temp_c=15.0)
-    result = assess(reading, "working on scaffolding", THRESHOLDS)
+    reading = WeatherReading(
+        available=True, wind_speed_kmh=_kmh(12), wind_gust_kmh=_kmh(35), temp_c=30.0
+    )
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
     assert result["verdict"] == "no-go"
+
+
+def test_b3_13_sheet_handling_stops_at_lower_limit_any_height():
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(16), temp_c=30.0)
+    result = assess(reading, "handling sheet materials at ground level", POLICY, now=WINTER_NOON)
+    assert result["verdict"] == "no-go"
+    assert any("any height" in r for r in result["reasons"])
+
+
+def test_b3_14_heat_bands_flagged():
+    elevated = assess(
+        WeatherReading(available=True, wind_speed_kmh=_kmh(5), temp_c=43.0),
+        "external work", POLICY, now=WINTER_NOON,
+    )
+    assert elevated["verdict"] == "go"
+    assert any("elevated band" in r for r in elevated["reasons"])
+    suspended = assess(
+        WeatherReading(available=True, wind_speed_kmh=_kmh(5), temp_c=46.0),
+        "external work", POLICY, now=WINTER_NOON,
+    )
+    assert suspended["verdict"] == "no-go"
+
+
+def test_b3_14b_summer_midday_break_prohibits_external_work():
+    summer_lunch = datetime(2026, 8, 8, 13, 0, tzinfo=TZ)
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(5), temp_c=38.0)
+    result = assess(reading, "external work", POLICY, now=summer_lunch)
+    assert result["verdict"] == "no-go"
+    assert any("midday break" in r.lower() for r in result["reasons"])
+    # same conditions at 15:30 are fine
+    after = assess(reading, "external work", POLICY,
+                   now=datetime(2026, 8, 8, 15, 30, tzinfo=TZ))
+    assert after["verdict"] == "go"
 
 
 def test_b3_15_weather_unavailable_never_assumes_fine():
     reading = WeatherReading(available=False, error="boom")
-    result = assess(reading, "working on scaffolding", THRESHOLDS)
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
     assert result["verdict"] == "unknown"
     assert "not assume" in result["reason"].lower()
 
@@ -116,15 +152,14 @@ def test_b4_16_weather_endpoint_degrades_gracefully(monkeypatch):
     assert resp.json()["verdict"] == "unknown"
 
 
-def test_b5_thresholds_parsed_from_sop_not_hardcoded():
-    """Every threshold must carry a quote traceable to a demo-data file."""
-    assert THRESHOLDS, "no thresholds parsed from SOPs"
-    wind = [t for t in THRESHOLDS if t.unit == "km/h"]
-    assert len(wind) >= 3  # scaffold, crane, sheet materials
-    for t in wind:
-        assert t.quote in "\n".join(c.text for c in CHUNKS if t.source_doc.startswith(c.doc_id))
+def test_b5_policy_parsed_from_sop_not_hardcoded():
+    """Every figure in the verdict must be traceable to MER-SOP-021 text."""
+    assert POLICY is not None
+    body = "\n".join(c.text for c in CHUNKS if c.doc_id == "MER-SOP-021")
+    for figure in ("17", "22", "25", "33", "15 mph", "42", "45", "12:30", "15:00"):
+        assert figure in body
 
 
 def test_health_reports_loaded_docs():
     body = client.get("/health").json()
-    assert body["ok"] and body["sop_docs"] == 3
+    assert body["ok"] and body["sop_docs"] == 3 and body["policy_loaded"]

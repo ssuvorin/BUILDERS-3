@@ -22,7 +22,7 @@ answer contains the correct steps and names the SOP document.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Meridian SOPs are loaded, **When** the worker asks "how do I check my harness", **Then** the answer lists the SOP steps and names MC-SOP-021.
+1. **Given** the Meridian SOPs are loaded, **When** the worker asks "what do I check before using this scaffold", **Then** the answer lists the four checks and names MER-SOP-014.
 2. **Given** the same question asked with filler words and casual phrasing, **When** processed, **Then** the same answer is produced.
 3. **Given** company SOP and general web guidance conflict (wind threshold), **When** asked, **Then** the agent follows the SOP figure and says it is following the Meridian policy.
 
@@ -88,7 +88,7 @@ and defers safety go/no-go decisions to the supervisor.
 
 ## Success Criteria *(mandatory)*
 
-- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Meridian's 30 km/h, names the policy, notes it is stricter than general guidance.
+- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Meridian's 17 mph restriction, names MER-SOP-021, notes it is stricter than general guidance.
 - **SC-002**: Eval set (B1–B5) green from one command.
 - **SC-003**: A stranger can clone → install → run from the README alone.
 - **SC-004**: ~half of eval cases verify refusal/deferral/flagging behaviour.

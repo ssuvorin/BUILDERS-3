@@ -34,9 +34,11 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
 
 - Meridian's company data (SOPs, wind policy, scaffold checklist) lives in
   `demo-data/` — faked for the demo, treated exactly as enterprise data.
-- Wind/heat thresholds are **parsed from the policy text**, never hardcoded
-  (scaffold work stops at 30 km/h — stricter than the ~38 km/h external
-  guidance, and HeatSafe says whose rule it is following).
+- Wind/heat thresholds are **parsed from the policy text**, never hardcoded.
+  Meridian restricts work above 6 m from 17 mph sustained — stricter than
+  commonly cited external guidance — and HeatSafe says whose rule it is
+  following. Bands: normal / restricted / suspended, plus heat bands and
+  the UAE summer midday break (12:30–15:00, 15 Jun–15 Sep).
 
 ## Run it
 

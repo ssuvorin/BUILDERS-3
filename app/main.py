@@ -8,12 +8,13 @@ from pydantic import BaseModel
 
 from app import sops, weather
 from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL, ROOT_DIR, SITE_LOCATION
+from app.policy import extract_policy
 from app.verdict import assess
 
 app = FastAPI(title="HeatSafe Voice Copilot tools")
 
 _CHUNKS = sops.load_chunks()
-_THRESHOLDS = sops.extract_thresholds(_CHUNKS)
+_POLICY = extract_policy(_CHUNKS)
 
 
 class SearchRequest(BaseModel):
@@ -31,7 +32,11 @@ class LookupRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"ok": True, "sop_docs": len({c.filename for c in _CHUNKS}), "thresholds": len(_THRESHOLDS)}
+    return {
+        "ok": True,
+        "sop_docs": len({c.filename for c in _CHUNKS}),
+        "policy_loaded": _POLICY is not None,
+    }
 
 
 @app.post("/tools/search_sops")
@@ -51,7 +56,7 @@ def search_sops(req: SearchRequest) -> dict:
 async def check_weather(req: WeatherRequest) -> dict:
     """Live weather vs the threshold read from the company SOP."""
     reading = await weather.fetch_weather(req.location or SITE_LOCATION)
-    return assess(reading, req.activity, _THRESHOLDS)
+    return assess(reading, req.activity, _POLICY)
 
 
 @app.post("/tools/web_lookup")

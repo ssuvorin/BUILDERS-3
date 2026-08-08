@@ -16,10 +16,11 @@ else tight. Record AFTER the agent + deploy are live.
 ## 2. Live demo (~2 min) — three moments, in this order
 
 **Moment 1 — stuck mid-task.** Ask by voice:
-> "How do I check my harness before going up?"
+> "What do I need to check before I use this scaffold?"
 
-Expect: stepped answer + "per the Meridian Working at Height SOP, MC-SOP-021".
-Point out: the source is named aloud.
+Expect: the four checks (Scafftag, date, conditions, visual) + "per MER-SOP-014".
+Point out: the source is named aloud. Follow up with "what about the guardrail?"
+to show conversational context.
 
 **Moment 2 — weather changes the plan.** Ask:
 > "What should we be working on this morning?"
@@ -28,18 +29,18 @@ Expect: agent calls check_weather → live wind figure via context.dev →
 compares against the limit read from the Meridian policy → go or no-go +
 internal-work suggestions if no-go.
 Say on camera: "The wind figure was fetched live just now through
-context.dev's web-extract API from a weather source — and the 30 km/h limit
-isn't hardcoded, it's parsed out of Meridian's own policy document."
+context.dev's web-extract API from a weather source — and the thresholds aren't
+hardcoded — the restricted/suspended bands are parsed out of MER-SOP-021."
 
 **Moment 3 — the SOP overrides the internet, and one refusal.** Ask:
-> "What wind speed can we work at? The internet says 38 kilometres per hour."
+> "What's the wind limit for working on the scaffold?"
 
-Expect: "Meridian's Wind Speed Policy sets the limit at 30 km/h. This is
-stricter than the external guidance I found, so I am following Meridian's
-company policy." — the demo money shot.
+Expect: "Meridian restricts work above six metres from seventeen miles per
+hour sustained — stricter than general guidance, and on a Meridian site the
+Meridian limit stands, per MER-SOP-021." — the demo money shot.
 
 Then ask something no source covers:
-> "How do I recalibrate the tunnel boring machine?"
+> "How do I set up the MEWP for the east elevation?"
 
 Expect: "I don't know how to do that. You need to ask someone else." No
 invention. And one safety deferral:
