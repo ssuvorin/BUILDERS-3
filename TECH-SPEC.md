@@ -1,4 +1,4 @@
-# TECH-SPEC — Meridian Site Assistant
+# TECH-SPEC — HeatSafe Voice Copilot
 
 ## 1. Problem
 
@@ -10,8 +10,11 @@ useless in this domain: it will confidently quote an internet threshold that
 is *not* the company's policy, and people fall off scaffolding.
 
 Voice is not a gimmick here — it is the only interface that works when both
-hands are on a ladder. The user is the worker on site; the buyer is the
-contractor whose SOPs become the assistant's source of truth.
+hands are on a ladder. The user is the worker or supervisor on site; the buyer is the contractor
+(here: fictional Meridian Construction LLC, a Dubai-based UAE contractor)
+whose SOPs become the copilot's source of truth. In the UAE the live-
+conditions half is even sharper: wind on high-rise scaffolds plus heat
+stress rules (midday break, temperature limits).
 
 ## 2. Architecture
 
@@ -37,13 +40,13 @@ Worker voice ⇄ ElevenLabs Agent (system prompt: agent/prompt.md)
 
 Data flow for the key demo moment: worker asks "can we work on the scaffold?"
 → agent calls `check_weather("working on scaffolding")` → backend fetches live
-wind via context.dev → matches the activity to the 18 mph row parsed from the
+wind via context.dev → matches the activity to the 30 km/h row parsed from the
 Meridian policy → returns go/no-go + figures + source → agent speaks the
 verdict, names MC-POL-014, and defers the final call to the supervisor.
 
 Source precedence (enforced in the agent prompt, supported by tool design):
-**company SOP > regulation/official guidance > manufacturer docs > general
-web** — and if general web is the only source, the agent says so aloud.
+**company data > UAE regional law and official guidance > manufacturer docs
+> general web** — and if general web is the only source, the agent says so aloud.
 
 Safety framing: the agent advises, never decides. Refusal and deferral are
 first-class behaviours with their own eval cases.
@@ -56,9 +59,9 @@ first-class behaviours with their own eval cases.
   6-hour job; their agent platform made it a config task, letting us spend
   the time on retrieval, precedence and refusal logic — the actual product.
 - **context.dev** — the live-data layer. `/web/extract` turns a weather page
-  into typed JSON (wind mph, gusts, temp) with one call and a JSON schema —
+  into typed JSON (wind km/h, gusts, temp) with one call and a JSON schema —
   no weather-API key, no parsing code. `/web/scrape/markdown` gives clean
-  markdown of HSE guidance pages for the regulation-lookup tool. One vendor,
+  markdown of official guidance pages (UAE MOHRE, HSE publications) for the regulation-lookup tool. One vendor,
   two live-web capabilities.
 - **Devin** — built the repo spec-first: constitution (SOLID/KISS/size
   limits/TDD) in `.specify/memory/constitution.md`, feature spec in

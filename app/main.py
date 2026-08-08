@@ -1,4 +1,4 @@
-"""Webhook backend for the ElevenLabs site-assistant agent."""
+"""HeatSafe Voice Copilot — webhook backend for the ElevenLabs agent."""
 from pathlib import Path
 
 import httpx
@@ -10,7 +10,7 @@ from app import sops, weather
 from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL, ROOT_DIR, SITE_LOCATION
 from app.verdict import assess
 
-app = FastAPI(title="Meridian Site Assistant tools")
+app = FastAPI(title="HeatSafe Voice Copilot tools")
 
 _CHUNKS = sops.load_chunks()
 _THRESHOLDS = sops.extract_thresholds(_CHUNKS)

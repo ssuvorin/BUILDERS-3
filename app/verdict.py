@@ -2,12 +2,12 @@
 from app.sops import Threshold, match_threshold
 from app.weather import WeatherReading
 
-_MPH_PER_KMH = 0.621371
+_KMH_PER_MPH = 1.60934
 
 
-def _limit_in_mph(threshold: Threshold) -> float:
-    if threshold.unit == "km/h":
-        return threshold.limit_value * _MPH_PER_KMH
+def _limit_in_kmh(threshold: Threshold) -> float:
+    if threshold.unit == "mph":
+        return threshold.limit_value * _KMH_PER_MPH
     return threshold.limit_value
 
 
@@ -27,21 +27,21 @@ def assess(reading: WeatherReading, activity: str, thresholds: list[Threshold]) 
             "reason": "No wind threshold found in the loaded SOPs for this activity.",
             "weather": reading.__dict__,
         }
-    limit_mph = _limit_in_mph(threshold)
-    effective_wind = max(reading.wind_speed_mph, reading.wind_gust_mph or 0)
-    over = effective_wind >= limit_mph
+    limit_kmh = _limit_in_kmh(threshold)
+    effective_wind = max(reading.wind_speed_kmh, reading.wind_gust_kmh or 0)
+    over = effective_wind >= limit_kmh
     return {
         "verdict": "no-go" if over else "go",
         "activity": threshold.activity,
-        "wind_speed_mph": reading.wind_speed_mph,
-        "wind_gust_mph": reading.wind_gust_mph,
+        "wind_speed_kmh": reading.wind_speed_kmh,
+        "wind_gust_kmh": reading.wind_gust_kmh,
         "temp_c": reading.temp_c,
-        "limit_mph": limit_mph,
+        "limit_kmh": limit_kmh,
         "threshold_source": threshold.source_doc,
         "threshold_quote": threshold.quote,
         "weather_source": reading.source,
         "note": "Gusts count against the limit per MC-POL-014."
-        if reading.wind_gust_mph
+        if reading.wind_gust_kmh
         else None,
         "reminder": "The site supervisor makes the final stop/go call.",
     }

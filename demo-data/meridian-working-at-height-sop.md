@@ -1,6 +1,6 @@
-# Meridian Construction — Working at Height SOP
+# Meridian Construction LLC — Working at Height SOP
 
-Document: MC-SOP-021 | Revision 5 | Owner: HSE Manager
+Document: MC-SOP-021 | Revision 5 | Owner: HSE Manager | Sites: all UAE sites
 
 ## Scope
 
@@ -52,7 +52,7 @@ mobile towers, MEWPs, ladders and roof work.
 ## If something goes wrong
 
 - Rescue plan: every work-at-height task must have a named rescue person
-  on site. Suspended worker → call the rescue person and 999, do not
-  attempt an improvised rope rescue.
+  on site. Suspended worker → call the rescue person and 998 (ambulance),
+  do not attempt an improvised rope rescue.
 - Report all dropped objects and near misses to the site supervisor the
   same day.

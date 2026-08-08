@@ -8,7 +8,7 @@ Replace `{BASE_URL}` with the deployed backend URL (HTTPS required).
 ## 1. search_sops
 
 - **Name**: `search_sops`
-- **Description**: Search Meridian Construction's company SOPs and policies. Use FIRST for every work or safety question. Empty results mean no company document covers it — refuse and defer, do not invent.
+- **Description**: Search Meridian Construction LLC's company data: SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — refuse and defer, do not invent.
 - **Method**: POST
 - **URL**: `{BASE_URL}/tools/search_sops`
 - **Body parameters**:
@@ -17,7 +17,7 @@ Replace `{BASE_URL}` with the deployed backend URL (HTTPS required).
 ## 2. check_weather
 
 - **Name**: `check_weather`
-- **Description**: Get live wind speed and temperature for the site and a go/no-go verdict against the threshold read from the Meridian Wind & Weather Policy. Use for any question about outside work, scaffolding, cranes, or "what should we do today". Never quote thresholds from memory.
+- **Description**: Get live wind speed (km/h) and temperature for the Dubai site and a go/no-go verdict against the threshold read from the Meridian Wind & Weather Policy. Use for any question about outside work, scaffolding, cranes, heat, or "what should we do today". Never quote thresholds from memory.
 - **Method**: POST
 - **URL**: `{BASE_URL}/tools/check_weather`
 - **Body parameters**:
@@ -26,7 +26,7 @@ Replace `{BASE_URL}` with the deployed backend URL (HTTPS required).
 ## 3. web_lookup
 
 - **Name**: `web_lookup`
-- **Description**: Fetch an official guidance page (e.g. HSE) as text when the company SOPs do not cover the question. Results rank BELOW company SOPs. Useful start: https://www.hse.gov.uk/work-at-height/index.htm
+- **Description**: Fetch an official guidance page (UAE regulations, official HSE publications, manufacturer documentation) as text when Meridian's company documents do not cover the question. Results rank BELOW company data. Useful start: https://www.mohre.gov.ae or https://www.hse.gov.uk/work-at-height/index.htm
 - **Method**: POST
 - **URL**: `{BASE_URL}/tools/web_lookup`
 - **Body parameters**:

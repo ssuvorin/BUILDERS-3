@@ -1,41 +1,46 @@
-# Meridian Construction — Wind & Weather Working Policy
+# Meridian Construction LLC — Wind & Weather Working Policy
 
-Document: MC-POL-014 | Revision 3 | Owner: HSE Manager
+Document: MC-POL-014 | Revision 3 | Owner: HSE Manager | Sites: all UAE sites
 
 ## Purpose
 
-This policy sets Meridian Construction's limits for working in wind, cold and
-adverse weather. Where these limits are stricter than general industry
-guidance, **Meridian limits take precedence on all Meridian sites**.
+This policy sets Meridian Construction's limits for working in wind, heat and
+adverse weather. Where these limits are stricter than external guidance,
+**Meridian limits take precedence on all Meridian sites**.
 
 ## Wind speed limits
 
 | Activity | Meridian limit (must stop at or above) |
 |---|---|
-| Working on scaffolding or any work at height | 18 mph (29 km/h) sustained wind |
-| Crane and hoist operations | 15 mph (24 km/h) sustained wind |
-| Handling sheet materials, boards or shuttering at height | 12 mph (19 km/h) sustained wind |
+| Working on scaffolding or any work at height | 30 km/h sustained wind |
+| Crane and hoist operations | 25 km/h sustained wind |
+| Handling sheet materials, boards or shuttering at height | 20 km/h sustained wind |
 
-Note: general industry guidance commonly quotes 23 mph (Beaufort force 5) as
-the stop-work threshold for scaffold work. Meridian applies the stricter
-18 mph limit following the 2023 incident review at the Harlow site.
+Note: general external guidance commonly quotes 38 km/h (23 mph) as the
+stop-work threshold for scaffold work. Meridian applies the stricter
+30 km/h limit following the 2023 incident review at the Jebel Ali site.
 
 Gusts count: if gusts exceed the limit for the activity, treat the limit as
 exceeded even if the sustained wind is below it.
 
-## Cold working limits
+## Heat stress limits
 
 | Condition | Rule |
 |---|---|
-| Air temperature below 0 °C | No work at height on external scaffolds without site manager sign-off |
-| Air temperature below -5 °C | All external work suspended |
-| Ice or frost on scaffold boards | Scaffold closed until boards cleared and re-inspected |
+| UAE midday break period (15 June – 15 September) | No outdoor work between 12:30 and 15:00, per MOHRE requirements |
+| Air temperature at or above 45 °C | Outdoor work only with site manager sign-off, mandatory shaded rest every 45 minutes |
+| Air temperature at or above 50 °C | All outdoor work suspended |
+| Any heat illness symptom reported | Stop the task, move to shade, inform the supervisor immediately |
 
-## Rain and visibility
+Hydration: drinking water within 20 m of every work position; supervisors
+confirm water points before the morning briefing.
 
-- Heavy rain: suspend external work at height; resume only after a
-  competent person re-inspects boards and access routes.
-- Visibility under 50 m (fog): suspend crane lifts and work at height.
+## Sand, dust and visibility
+
+- Sandstorm or dust reducing visibility under 100 m: suspend crane lifts
+  and work at height.
+- After any sandstorm: scaffold boards cleared of sand and re-inspected
+  before work resumes.
 
 ## Decision authority
 

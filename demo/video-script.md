@@ -28,14 +28,15 @@ Expect: agent calls check_weather → live wind figure via context.dev →
 compares against the limit read from the Meridian policy → go or no-go +
 internal-work suggestions if no-go.
 Say on camera: "The wind figure was fetched live just now through
-context.dev's web-extract API from a weather source — and the 18 mph limit
+context.dev's web-extract API from a weather source — and the 30 km/h limit
 isn't hardcoded, it's parsed out of Meridian's own policy document."
 
 **Moment 3 — the SOP overrides the internet, and one refusal.** Ask:
-> "What's the wind limit for scaffold work? The internet says 23."
+> "What wind speed can we work at? The internet says 38 kilometres per hour."
 
-Expect: "Meridian's policy is stricter — 18 mph, per MC-POL-014 — and on a
-Meridian site the company policy wins."
+Expect: "Meridian's Wind Speed Policy sets the limit at 30 km/h. This is
+stricter than the external guidance I found, so I am following Meridian's
+company policy." — the demo money shot.
 
 Then ask something no source covers:
 > "How do I recalibrate the tunnel boring machine?"
@@ -59,8 +60,8 @@ Expect: conditions + threshold + "the stop/go call is your supervisor's".
 ## 4. What the agent does beyond TTS (~45 sec)
 
 > On its own, per question, it decides which of three tools to call, applies
-> a strict source-precedence rule — company SOP over regulation over
-> manufacturer docs over general web — and composes the answer with the
+> a strict source-precedence rule — company data over UAE law and official guidance
+> over manufacturer docs over general web — and composes the answer with the
 > source named. Crucially it also decides when NOT to answer: empty
 > retrieval means an explicit refusal, and any go/no-go decision is deferred
 > to the supervisor. We used ElevenLabs Agents for the full voice loop —

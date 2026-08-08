@@ -73,7 +73,7 @@ and defers safety go/no-go decisions to the supervisor.
 ### Functional Requirements
 
 - **FR-001**: System MUST answer voice questions using uploaded SOPs first, naming the source document aloud.
-- **FR-002**: System MUST apply source precedence: company SOP > regulation/official guidance (live web) > manufacturer docs (live web) > general web (flagged aloud when it is the only source).
+- **FR-002**: System MUST apply source precedence: company data > UAE regional law/official guidance (live web) > manufacturer docs (live web) > general web (flagged aloud when it is the only source).
 - **FR-003**: System MUST fetch live weather (wind, temperature) for the site location and compare against thresholds READ FROM THE SOP — never hardcoded.
 - **FR-004**: System MUST refuse to answer questions no source covers, and defer safety go/no-go decisions to the supervisor.
 - **FR-005**: System MUST never invent a figure, threshold, spec or procedure absent from a retrieved source.
@@ -88,7 +88,7 @@ and defers safety go/no-go decisions to the supervisor.
 
 ## Success Criteria *(mandatory)*
 
-- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Meridian's 18 mph, names the policy, notes it is stricter than general guidance.
+- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Meridian's 30 km/h, names the policy, notes it is stricter than general guidance.
 - **SC-002**: Eval set (B1–B5) green from one command.
 - **SC-003**: A stranger can clone → install → run from the README alone.
 - **SC-004**: ~half of eval cases verify refusal/deferral/flagging behaviour.
@@ -102,7 +102,7 @@ as a real-world requirement, not built).
 
 ## Assumptions
 
-- Demo company is fictional "Meridian Construction"; SOPs live in `demo-data/`.
+- Product: HeatSafe Voice Copilot (HeatSafe Technologies). Demo client is fictional "Meridian Construction LLC" (Dubai, UAE); company data lives in `demo-data/`.
 - Voice in/out via ElevenLabs Agents platform; agent tools call our webhook backend.
 - Live weather + web lookups via context.dev; weather source degradation handled explicitly.
-- Site location fixed for the demo (configurable via env), London by default.
+- Site location fixed for the demo (configurable via env), Dubai by default.

@@ -42,10 +42,10 @@ def test_b1_2_casual_phrasing_same_doc():
 
 
 def test_b1_4_wind_under_threshold_is_go():
-    reading = WeatherReading(available=True, wind_speed_mph=8.0, temp_c=15.0)
+    reading = WeatherReading(available=True, wind_speed_kmh=12.0, temp_c=15.0)
     result = assess(reading, "working on scaffolding", THRESHOLDS)
     assert result["verdict"] == "go"
-    assert result["limit_mph"] == _wind_threshold().limit_value
+    assert result["limit_kmh"] == _wind_threshold().limit_value
     assert "MC-POL-014" in result["threshold_source"]
 
 
@@ -61,20 +61,20 @@ def test_b2_6_uncovered_procedure_returns_nothing():
 
 
 def test_b2_7_sop_overrides_general_web_guidance():
-    """Meridian's limit (18 mph) is stricter than common industry guidance (23 mph).
+    """Meridian's limit (30 km/h) is stricter than common external guidance (38 km/h).
     The threshold must come from the SOP, and the source must be named."""
     t = _wind_threshold()
-    assert t.limit_value == 18.0
-    assert t.unit == "mph"
+    assert t.limit_value == 30.0
+    assert t.unit == "km/h"
     assert "MC-POL-014" in t.source_doc
-    # 20 mph: fine per general guidance, no-go per Meridian
-    reading = WeatherReading(available=True, wind_speed_mph=20.0, temp_c=15.0)
+    # 34 km/h: fine per general external guidance, no-go per Meridian
+    reading = WeatherReading(available=True, wind_speed_kmh=34.0, temp_c=15.0)
     result = assess(reading, "scaffold work", THRESHOLDS)
     assert result["verdict"] == "no-go"
 
 
 def test_b2_10_go_up_decision_defers_to_supervisor():
-    reading = WeatherReading(available=True, wind_speed_mph=10.0, temp_c=12.0)
+    reading = WeatherReading(available=True, wind_speed_kmh=15.0, temp_c=12.0)
     result = assess(reading, "working on scaffolding", THRESHOLDS)
     assert "supervisor" in result["reminder"].lower()
 
@@ -82,16 +82,16 @@ def test_b2_10_go_up_decision_defers_to_supervisor():
 # --- B3: weather logic -----------------------------------------------------
 
 def test_b3_12_wind_above_threshold_no_go_with_figures():
-    reading = WeatherReading(available=True, wind_speed_mph=25.0, temp_c=15.0)
+    reading = WeatherReading(available=True, wind_speed_kmh=40.0, temp_c=15.0)
     result = assess(reading, "working on scaffolding", THRESHOLDS)
     assert result["verdict"] == "no-go"
-    assert result["wind_speed_mph"] == 25.0
-    assert result["limit_mph"] == 18.0
+    assert result["wind_speed_kmh"] == 40.0
+    assert result["limit_kmh"] == 30.0
     assert "MC-POL-014" in result["threshold_source"]
 
 
 def test_b3_12b_gusts_count_against_limit():
-    reading = WeatherReading(available=True, wind_speed_mph=14.0, wind_gust_mph=22.0, temp_c=15.0)
+    reading = WeatherReading(available=True, wind_speed_kmh=22.0, wind_gust_kmh=36.0, temp_c=15.0)
     result = assess(reading, "working on scaffolding", THRESHOLDS)
     assert result["verdict"] == "no-go"
 
@@ -119,7 +119,7 @@ def test_b4_16_weather_endpoint_degrades_gracefully(monkeypatch):
 def test_b5_thresholds_parsed_from_sop_not_hardcoded():
     """Every threshold must carry a quote traceable to a demo-data file."""
     assert THRESHOLDS, "no thresholds parsed from SOPs"
-    wind = [t for t in THRESHOLDS if t.unit == "mph"]
+    wind = [t for t in THRESHOLDS if t.unit == "km/h"]
     assert len(wind) >= 3  # scaffold, crane, sheet materials
     for t in wind:
         assert t.quote in "\n".join(c.text for c in CHUNKS if t.source_doc.startswith(c.doc_id))

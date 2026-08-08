@@ -1,11 +1,24 @@
-# Meridian Site Assistant
+# HeatSafe Voice Copilot
 
-A hands-free voice assistant for construction workers on site. It answers
-how-do-I questions from the company's own SOPs (naming the source aloud),
-checks live wind/temperature against thresholds read from the company policy,
-and refuses to answer anything no source covers.
+HeatSafe Technologies builds voice-first operational safety copilots for
+frontline teams in high-risk environments. This is the first product, focused
+on construction, deployed for a fictional client: **Meridian Construction LLC**,
+a Dubai-based UAE contractor.
 
-**The agent advises. It never decides.** Stop/go calls belong to the supervisor.
+Workers and supervisors get hands-free, on-demand answers to two questions:
+
+- **WHEN should we do this job?** — live wind and heat checked against
+  Meridian's own policies.
+- **HOW should I do this job?** — Meridian's procedures and checklists,
+  walked through by voice.
+
+HeatSafe doesn't simply search the internet — it understands which source has
+authority: **company data > UAE regional law and official guidance >
+manufacturer documentation > general web** (and if general web is the only
+source, it says so out loud).
+
+**HeatSafe retrieves. HeatSafe explains. HeatSafe cites. HeatSafe never
+guesses.** Stop/go decisions always belong to the supervisor.
 
 ## Architecture
 
@@ -15,13 +28,15 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
                     ▼
         FastAPI backend (app/)
         ├── /tools/search_sops    — retrieval over demo-data/*.md with source attribution
-        ├── /tools/check_weather  — live weather via context.dev vs SOP threshold
-        └── /tools/web_lookup     — official guidance pages via context.dev (ranked below SOPs)
+        ├── /tools/check_weather  — live wind/heat via context.dev vs thresholds read from the policy
+        └── /tools/web_lookup     — official guidance pages via context.dev (ranked below company data)
 ```
 
-- Company SOPs for fictional "Meridian Construction" live in `demo-data/`.
-- Wind/cold thresholds are **parsed from the SOP text**, never hardcoded.
-- Source precedence: company SOP > regulation > manufacturer docs > general web (flagged).
+- Meridian's company data (SOPs, wind policy, scaffold checklist) lives in
+  `demo-data/` — faked for the demo, treated exactly as enterprise data.
+- Wind/heat thresholds are **parsed from the policy text**, never hardcoded
+  (scaffold work stops at 30 km/h — stricter than the ~38 km/h external
+  guidance, and HeatSafe says whose rule it is following).
 
 ## Run it
 
@@ -61,5 +76,5 @@ Built with [spec-kit](https://github.com/github/spec-kit):
 
 ## Known real-world requirements not built (by design)
 
-Offline mode, user accounts, real SOP ingestion pipeline, persistence —
-out of scope for the demo, listed in the spec.
+Offline mode, user accounts, real SOP ingestion pipeline, persistence,
+multilingual voice — out of scope for the demo, listed in the spec.
