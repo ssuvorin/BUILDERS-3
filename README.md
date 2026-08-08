@@ -40,6 +40,36 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
   following. Bands: normal / restricted / suspended, plus heat bands and
   the UAE summer midday break (12:30–15:00, 15 Jun–15 Sep).
 
+## Data sources
+
+HeatSafe fuses two groups of data, and always knows which one it is quoting.
+
+**External / regional — retrieved live:**
+
+| Data | Example | How it gets in |
+|---|---|---|
+| Weather | Temperature, humidity, forecast | context.dev `/web/extract` per query — never cached |
+| Wind | Sustained speed, gusts | context.dev `/web/extract` per query |
+| Environmental conditions | Dust/shamal visibility, UV | assessed via the same live reading + policy rules |
+| Regional law | UAE federal / emirate requirements (MOHRE) | context.dev `/web/scrape/markdown` on demand |
+| Official HSE guidance | Government safety publications | context.dev `/web/scrape/markdown` on demand |
+| Manufacturer information | Equipment specs, safety notices | context.dev `/web/scrape/markdown` on demand |
+
+**Company (private, per client) — the BYO-documentation layer:**
+
+| Data | Example in this demo |
+|---|---|
+| Company SOPs | MER-SOP-014 Working at Height |
+| Safety policies | MER-SOP-021 Adverse Weather and Work Sequencing |
+| Checklists | MER-SC-003 Scaffold Inspection Checklist |
+| Site rules | Site-specific restrictions inside the SOPs |
+| Emergency procedures | Escalation tables (radio channel 2, 800-4400) |
+| Equipment procedures | Harness, ladder and platform rules in MER-SOP-014 |
+
+When the two groups disagree, company data wins, and HeatSafe says so aloud.
+Company data is fictional demo data here, but is treated exactly as
+enterprise data — private, authoritative, and pluggable per client.
+
 ## Run it
 
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.11+.

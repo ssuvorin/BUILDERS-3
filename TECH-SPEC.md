@@ -51,6 +51,17 @@ Source precedence (enforced in the agent prompt, supported by tool design):
 **company data > UAE regional law and official guidance > manufacturer docs
 > general web** — and if general web is the only source, the agent says so aloud.
 
+The system fuses two data groups and always knows which one it is quoting:
+
+- **External / regional (live)**: weather, wind and gusts, environmental
+  conditions (dust/shamal visibility), UAE federal and emirate-level
+  requirements, official HSE publications, manufacturer documentation —
+  all retrieved through context.dev at question time, never cached.
+- **Company (private, per client)**: SOPs, safety policies, checklists,
+  site rules, emergency/escalation procedures, equipment procedures —
+  the BYO-documentation layer, pluggable per client and authoritative over
+  everything external.
+
 Safety framing: the agent advises, never decides. Refusal and deferral are
 first-class behaviours with their own eval cases.
 
