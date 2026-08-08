@@ -183,7 +183,7 @@
   <div class="frame">
     <svg viewBox="0 0 1520 1010" role="img" aria-labelledby="svgtitle svgdesc">
       <title id="svgtitle">HeatSafe architecture and decision flow</title>
-      <desc id="svgdesc">A nine-step voice pipeline with nine decision gates branching to early exits. The pipeline: worker taps once, ElevenLabs speech to text, a Qwen LLM chosen for low latency, reasoning about which tools are needed, tool calls through context.dev covering weather, web lookup and the company's own documents, composing an answer with the source named, ElevenLabs text to speech, audio out to the worker, and a loop back carrying session context. The gates cover unclear transcription, out-of-domain questions, whether current conditions matter, whether the weather reading is fresher than ten minutes, whether company documents cover the question, ambiguity, whether any source exists, whether the question is safety-critical, and the special case of "is it safe right now", which is never answered yes.</desc>
+      <desc id="svgdesc">A nine-step voice pipeline with nine decision gates branching to early exits. The pipeline: worker taps once, ElevenLabs speech to text, a Qwen LLM chosen for low latency, reasoning about which tools are needed, tool calls (a local search over the company's own documents; weather, web search and page fetches through context.dev), composing an answer with the source named, ElevenLabs text to speech, audio out to the worker, and a loop back carrying session context. The gates cover unclear transcription, out-of-domain questions, whether current conditions matter, whether the weather reading is fresher than ten minutes, whether company documents cover the question, ambiguity, whether any source exists, whether the question is safety-critical, and the special case of "is it safe right now", which is never answered yes.</desc>
 
       <defs>
         <marker id="mk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -255,7 +255,7 @@
         <path d="M398,178 L398,203"/>
         <path d="M398,271 L398,296"/>
         <path d="M398,370 L398,388"/>
-        <path d="M398,522 L398,732"/>
+        <path d="M398,547 L398,732"/>
         <path d="M398,802 L398,836"/>
         <path d="M398,894 L398,914"/>
       </g>
@@ -297,13 +297,14 @@
       <text x="324" y="355" class="t-sub">question actually needs</text>
 
       <!-- 5 tools -->
-      <rect x="278" y="388" width="240" height="134" rx="11" fill="var(--info-soft)" stroke="var(--info)" stroke-width="1.5"/>
+      <rect x="278" y="388" width="240" height="159" rx="11" fill="var(--info-soft)" stroke="var(--info)" stroke-width="1.5"/>
       <circle cx="302" cy="412" r="13" fill="var(--info)"/><text x="302" y="416" class="t-num" text-anchor="middle">5</text>
       <text x="324" y="408" class="t-step">Tool calls</text>
-      <text x="324" y="425" class="t-sub">live layer: context.dev</text>
+      <text x="324" y="425" class="t-sub">weather + web via context.dev</text>
       <text x="296" y="452" class="t-mono">search_sops</text><text x="382" y="452" class="t-sub">company's own pack</text>
       <text x="296" y="477" class="t-mono">check_weather</text><text x="394" y="477" class="t-sub">wind, gusts, heat</text>
-      <text x="296" y="502" class="t-mono">web_lookup</text><text x="376" y="502" class="t-sub">guidance, maker docs</text>
+      <text x="296" y="502" class="t-mono">web_search</text><text x="376" y="502" class="t-sub">find official sources</text>
+      <text x="296" y="527" class="t-mono">web_lookup</text><text x="376" y="527" class="t-sub">read the chosen page</text>
 
       <!-- 6 -->
       <rect x="278" y="732" width="240" height="70" rx="11" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1.4"/>
@@ -491,7 +492,7 @@
 
   <footer>
     <div><b>HeatSafe Technologies</b> · Team 24 · [Dubai AI Hub] Builder Lab #3, 8 August 2026</div>
-    <div>Meridian Construction LLC and all its documents are fictional. Not operational safety advice.</div>
+    <div>Team 21 and all its documents are fictional. Not operational safety advice.</div>
     <div>Built with ElevenLabs Agents, context.dev and Devin.</div>
   </footer>
 </div>

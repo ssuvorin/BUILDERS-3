@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1380" width="1240" height="1380" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif" role="img" aria-labelledby="t d">
   <title id="t">HeatSafe Voice Copilot — architecture and decision flow</title>
-  <desc id="d">A voice pipeline running from the worker's tap through ElevenLabs speech-to-text, a Qwen LLM chosen for low latency, tool calls over a context.dev live-data layer, answer composition with the source named, and text-to-speech back to the worker. Decision gates branch off the pipeline to refusal, deferral and clarification outcomes.</desc>
+  <desc id="d">A voice pipeline running from the worker's tap through ElevenLabs speech-to-text, a Qwen LLM chosen for low latency, tool calls (a local search over the company's own documents; weather, web search and page fetches through context.dev), answer composition with the source named, and text-to-speech back to the worker. Decision gates branch off the pipeline to refusal, deferral and clarification outcomes.</desc>
 
   <defs>
     <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -64,13 +64,15 @@
   <!-- 5 tools -->
   <rect x="430" y="604" width="360" height="202" rx="12" fill="#e3f5fd" stroke="#0ea5e9" stroke-width="1.5"/>
   <text x="610" y="632" font-size="15" font-weight="700" fill="#1c1c1c" text-anchor="middle">5 · Tool calls</text>
-  <text x="610" y="652" font-size="13" fill="#6b7280" text-anchor="middle">live layer: context.dev</text>
-  <rect x="452" y="668" width="316" height="38" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
-  <text x="468" y="692" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">search_sops</tspan> — the company's own pack</text>
-  <rect x="452" y="712" width="316" height="38" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
-  <text x="468" y="736" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">check_weather</tspan> — wind, gusts, heat</text>
-  <rect x="452" y="756" width="316" height="38" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
-  <text x="468" y="780" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">web_lookup</tspan> — guidance, manufacturer</text>
+  <text x="610" y="652" font-size="13" fill="#6b7280" text-anchor="middle">weather + web via context.dev</text>
+  <rect x="452" y="664" width="316" height="30" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
+  <text x="468" y="684" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">search_sops</tspan> — the company's own pack</text>
+  <rect x="452" y="698" width="316" height="30" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
+  <text x="468" y="718" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">check_weather</tspan> — wind, gusts, heat</text>
+  <rect x="452" y="732" width="316" height="30" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
+  <text x="468" y="752" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">web_search</tspan> — find official sources</text>
+  <rect x="452" y="766" width="316" height="30" rx="8" fill="#ffffff" stroke="#bae6fd" stroke-width="1"/>
+  <text x="468" y="786" font-size="13.5" fill="#1c1c1c"><tspan font-weight="600">web_lookup</tspan> — read the chosen page</text>
 
   <!-- 6 compose -->
   <rect x="430" y="856" width="360" height="64" rx="12" fill="#f7f9fb" stroke="#e1e4ea" stroke-width="1.5"/>
