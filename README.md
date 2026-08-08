@@ -36,12 +36,16 @@ guesses.** Stop/go decisions always belong to the supervisor.
 
 ```
 Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
-                    │ webhook tools (agent/tools.md)
+                    │ four webhook tools + language_detection (agent/tools.md)
                     ▼
         FastAPI backend (app/)
-        ├── /tools/search_sops    — BM25 retrieval over demo-data/*.md with source attribution
-        ├── /tools/check_weather  — live wind/heat via context.dev vs thresholds read from the policy
-        ├── /tools/web_search     — official-guidance web search via context.dev (below company data)
+        ├── /tools/search_sops    — BM25 over stemmed tokens across demo-data/*.md, source
+        │                           attribution per chunk, coverage gate returns nothing
+        │                           rather than a weak match
+        ├── /tools/check_weather  — live wind/heat via context.dev, served from a 120s warm
+        │                           snapshot, vs thresholds parsed from the policy
+        ├── /tools/web_search     — context.dev /web/search, official hostnames ranked first
+        │                           (below company data). The step before any refusal
         ├── /tools/web_lookup     — fetch a specific guidance page via context.dev (below company data)
         ├── /api/voice-lease*     — capacity-based session slots (Redis, in-memory fallback)
         └── /analytics/learn-list — most-asked topics + questions no SOP covers (doc gaps)
@@ -54,6 +58,13 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
   commonly cited external guidance — and HeatSafe says whose rule it is
   following. Bands: normal / restricted / suspended, plus heat bands and
   the UAE summer midday break (12:30–15:00, 15 Jun–15 Sep).
+- The go/no-go verdict in `app/verdict.py` enforces four of the policy's
+  rules against the live reading: the wind bands (sustained and gusts), the
+  heat bands, the sheet-and-panel rule (stops at 15 mph sustained at any
+  height) and the midday break, with the most restrictive applicable rule
+  winning. The policy's other rules, including the sandstorm visibility
+  limits, are retrieved and quoted by `search_sops` rather than computed,
+  because the live reading does not carry visibility.
 
 ## Data sources
 
@@ -63,12 +74,10 @@ HeatSafe fuses two groups of data, and always knows which one it is quoting.
 
 | Data | Example | How it gets in |
 |---|---|---|
-| Weather | Temperature, humidity, forecast | context.dev `/web/extract`, refreshed every 120 s; readings report their age, anything older than the 10-min staleness budget is treated as unavailable |
-| Wind | Sustained speed, gusts | same reading — Open-Meteo primary (publishes gusts), wttr.in fallback; the answer names the source used |
-| Environmental conditions | Dust/shamal visibility, UV | assessed via the same live reading + policy rules |
-| Regional law | UAE federal / emirate requirements (MOHRE) | context.dev `/web/scrape/markdown` on demand |
-| Official HSE guidance | Government safety publications | context.dev `/web/scrape/markdown` on demand |
-| Manufacturer information | Equipment specs, safety notices | context.dev `/web/scrape/markdown` on demand |
+| Weather | Air temperature | context.dev `/web/extract` into a typed schema, refreshed every 120 s; readings report their age, anything older than the 10-min staleness budget is treated as unavailable |
+| Wind | Sustained speed, gusts | same reading. Open-Meteo is primary because it publishes gusts and the policy makes gusts a threshold in their own right; wttr.in is the fallback and covers ad-hoc locations. The answer names the source used |
+| Finding a source | Regulator, HSE or manufacturer page | context.dev `/web/search`, localised to the site country, official hostnames ranked first. Called as soon as company documents come up empty, before any refusal |
+| Reading a source | UAE requirements (MOHRE), official HSE publications, manufacturer documentation | context.dev `/web/scrape/markdown` on demand, flagged aloud as not company policy |
 
 **Company (private, per client) — the BYO-documentation layer:**
 
@@ -98,6 +107,27 @@ make run                  # serves on :8000
 
 Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":4,"policy_loaded":true}`
 
+`policy_loaded` is the one to watch. It goes false if the thresholds stop
+parsing out of the policy document, which is a silent failure otherwise.
+
+### Configuration
+
+Only `CONTEXT_DEV_API_KEY` is required. Everything else has a working default.
+
+| Variable | Default | What it does |
+|---|---|---|
+| `CONTEXT_DEV_API_KEY` | — | Required for the live tools. The evals do not need it |
+| `SITE_LOCATION` | `Dubai Marina` | Site name used for weather lookups |
+| `SITE_LAT` / `SITE_LON` | `25.080` / `55.140` | Coordinates for the primary weather source |
+| `SEARCH_COUNTRY` | `ae` | Localises `web_search` results |
+| `WEATHER_REFRESH_INTERVAL` | `120` | Seconds between background weather refreshes |
+| `WEATHER_STALE_AFTER` | `600` | Seconds before a reading is treated as unavailable |
+| `VOICE_MAX_SESSIONS` | `3` | Concurrent voice sessions allowed (set to 1 for a demo) |
+| `VOICE_LEASE_TTL` | `45` | Seconds before a silent session's slot is reclaimed |
+| `REDIS_URL` | `redis://127.0.0.1:6379/0` | Lease store. Falls back to in-memory if unreachable |
+| `DEMO_DATA_DIR` | `demo-data/` | The document pack to load |
+| `ASK_LOG_PATH` | unset | JSONL path if the learn list should survive restarts |
+
 ## Run the evals
 
 ```bash
@@ -105,24 +135,41 @@ make eval
 ```
 
 37 deterministic cases: the eval spec (section B) plus regression tests for
-retrieval quality, weather staleness/fallback, the learn list and the voice
-lease pool. A quarter of them verify refusal/deferral behaviour — in a
-work-at-height domain, that is the product.
+retrieval quality, weather staleness and fallback, the learn list and the
+voice lease pool. They run offline on a clean machine, with no API key and no
+network: weather readings are injected as fixtures and context.dev is
+monkeypatched. Nine of the 37 cover refusal, deferral, degraded sources and
+stale readings. In a work-at-height domain, that is the product.
+
+`make lint` runs ruff over `app` and `tests`.
 
 ## ElevenLabs agent setup
 
 1. Create an agent at elevenlabs.io/app/agents.
 2. Paste `agent/prompt.md` as the system prompt.
-3. Add the webhook tools from `agent/tools.md`, pointing at the deployed
-   backend URL (HTTPS).
-4. Put the agent id into `static/test.js` (or pass it as `/test?agent=...`)
+3. Add the four webhook tools from `agent/tools.md`, pointing at the deployed
+   backend URL (HTTPS). Ready-to-paste JSON definitions are in that file.
+4. Add the `language_detection` system tool (Add tool → System → Language
+   detection) and set the additional languages on the Agent tab. The crew is
+   multilingual; the prompt pins the refusal and deferral lines per language.
+5. Put the agent id into `static/test.js` (or pass it as `/test?agent=...`)
    and open `/test` for the voice screen; `/` is the promo page.
 
 ## Spec-driven development
 
-Built with [spec-kit](https://github.com/github/spec-kit):
+Built with [spec-kit](https://github.com/github/spec-kit). The spec artifacts
+were committed before the features they describe, so each task could be
+briefed as a delta against a written standard:
+
 - Project constitution: `.specify/memory/constitution.md`
 - Feature spec: `specs/001-site-voice-assistant/spec.md`
+- Turn-by-turn user flows, including the refusal and deferral paths:
+  `specs/001-site-voice-assistant/user-flows.md`
+- How the tools were steered, brief by brief, including the two briefs that
+  went wrong: `docs/devin-log.md`
+- What we verified rather than assumed, including the weather-source defect
+  and the retrieval failure that produced silence instead of an error:
+  `docs/FINDINGS.md`, with the source register in `docs/DATA-SOURCES.md`
 
 ## Known real-world requirements not built (by design)
 
@@ -137,3 +184,12 @@ Deployed at
 `https://royalty-mathematical-engineers-improvement.trycloudflare.com` —
 FastAPI on the VPS, exposed through a Cloudflare quick tunnel, managed by
 systemd (`heatsafe.service`); secrets in `/etc/heatsafe.env` on the VPS.
+
+That is a **quick tunnel**, so the hostname is ephemeral and only guaranteed
+for the demo window. If it does not answer, run the backend locally with the
+steps above; nothing in the product depends on that host. The tool URLs in
+`agent/tools.md` and the deployment URL in `static/test.js` both need updating
+if the tunnel is replaced.
+
+`/flow` serves the architecture and decision-flow diagram, because GitHub
+renders `docs/architecture-flow.html` as source rather than as a page.
