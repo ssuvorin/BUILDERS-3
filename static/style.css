@@ -293,3 +293,84 @@ footer p { color: var(--fg-subtle); font-size: 12px; line-height: 16px; max-widt
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ─── live-reading emphasis ─────────────────────────────────────────────
+   The temperature is the namesake reading and it decides the heat band, so it
+   gets visual weight the other two don't. Readable across a room, and on video. */
+.readings .reading-hero dd {
+  font-size: clamp(2.2rem, 5vw, 3rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.readings .reading-hero dt { color: var(--fg); font-weight: 600; }
+
+/* Provider disagreement. Never resolved silently — the reading decides a stop/go. */
+.disagree {
+  margin: .75rem 0 0;
+  padding: .6rem .75rem;
+  border-left: 3px solid var(--warning);
+  background: var(--warning-soft);
+  color: var(--fg);
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  line-height: 1.45;
+}
+@media (prefers-color-scheme: dark) {
+  .disagree { background: color-mix(in srgb, var(--warning) 12%, transparent); }
+}
+
+/* Reading age. Eval B3 #13 — a stale reading must not read as a current one. */
+.stamp { margin: .5rem 0 0; font-size: .78rem; color: var(--fg-subtle); }
+.stamp[data-stale="true"] { color: var(--warning); font-weight: 600; }
+
+/* ─── the contrast that is the product ──────────────────────────────────
+   Company rule vs general guidance, side by side. This is the one comparison
+   a judge needs to see to understand why BYO documentation matters. */
+.showdown { margin: 3rem 0 0; }
+.showdown-q {
+  margin: .25rem 0 1.25rem;
+  font-size: 1.05rem;
+  color: var(--fg-muted);
+  font-style: italic;
+}
+.showdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 1rem;
+}
+.sd-card {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+}
+.sd-heatsafe { border-color: var(--brand); box-shadow: var(--shadow-md); }
+.sd-label {
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--fg-subtle);
+  font-weight: 600;
+}
+.sd-heatsafe .sd-label { color: var(--brand); }
+.sd-answer { margin: 0; line-height: 1.5; }
+.sd-generic .sd-answer { color: var(--fg-muted); }
+.sd-answer b { font-size: 1.15em; }
+.sd-source {
+  font-size: .78rem;
+  color: var(--fg-subtle);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.sd-verdict {
+  margin-top: auto;
+  padding-top: .6rem;
+  border-top: 1px solid var(--border);
+  font-size: .82rem;
+  font-weight: 600;
+}
+.sd-bad { color: var(--danger); }
+.sd-good { color: var(--success); }

@@ -60,12 +60,14 @@
           <span class="verdict-note" id="verdict-note">Fetching live weather via context.dev…</span>
         </div>
         <dl class="readings" id="readings" hidden>
+          <div class="reading-hero"><dt>Temp</dt><dd id="r-temp">—</dd></div>
           <div><dt>Wind</dt><dd id="r-wind">—</dd></div>
           <div><dt>Gusts</dt><dd id="r-gust">—</dd></div>
-          <div><dt>Temp</dt><dd id="r-temp">—</dd></div>
         </dl>
         <ul class="reasons" id="reasons"></ul>
+        <p class="disagree" id="source-note" hidden></p>
         <p class="source-line" id="policy-source"></p>
+        <p class="stamp" id="reading-stamp" hidden></p>
       </article>
 
       <article class="card talk">
@@ -79,6 +81,27 @@
         </ul>
         <a class="cta ghost-cta" href="/test">Open the test console →</a>
       </article>
+    </section>
+
+    <section class="showdown">
+      <h2>What a general assistant gets wrong here</h2>
+      <p class="showdown-q">“What's the wind limit for working on the scaffold?”</p>
+      <div class="showdown-grid">
+        <div class="sd-card sd-generic">
+          <span class="sd-label">A general assistant</span>
+          <p class="sd-answer">“The commonly cited limit for scaffold work is around <b>23 mph</b>.”</p>
+          <span class="sd-verdict sd-bad">Correct about the internet. Wrong for this site.</span>
+        </div>
+        <div class="sd-card sd-heatsafe">
+          <span class="sd-label">HeatSafe</span>
+          <p class="sd-answer">“On a Meridian site it's <b>17 mph</b> sustained for work above six metres.
+            Twenty-three is what general guidance tends to quote — Meridian's limit is deliberately
+            stricter, and on a Meridian site the company limit stands.”</p>
+          <span class="sd-source">MER-SOP-021 §3 — named aloud</span>
+          <span class="sd-verdict sd-good">The company's rule wins, and it says so.</span>
+        </div>
+      </div>
+      <p class="how-note">Six miles an hour, on a scaffold, at height. That gap is the product.</p>
     </section>
 
     <section class="how">

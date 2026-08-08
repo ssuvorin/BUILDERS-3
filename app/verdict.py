@@ -94,6 +94,7 @@ def assess(
         "reasons": reasons,
         "policy_source": policy.source_doc,
         "weather_source": reading.source,
+        "weather_note": reading.note,
         "reminder": "The supervisor applies these thresholds and makes the stop/go call; "
         "the Site Manager authorises resumption after a suspension.",
     }

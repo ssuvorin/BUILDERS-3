@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HeatSafe" />
+  <meta name="theme-color" content="#0d0f13" />
+  <title>HeatSafe — Field</title>
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="/static/field.css" />
+</head>
+<body>
+
+  <!-- Conditions, glanceable. Deliberately small: the button is the interface. -->
+  <header class="fx-top">
+    <div class="fx-site">
+      <span class="fx-dot" id="fx-dot" aria-hidden="true"></span>
+      <span>Harbour Point Tower</span>
+    </div>
+    <button class="fx-refresh" id="fx-refresh" type="button" aria-label="Re-check conditions">↻</button>
+  </header>
+
+  <section class="fx-conditions" id="fx-conditions" aria-live="polite">
+    <span class="fx-badge" id="fx-badge" data-state="loading">CHECKING</span>
+    <div class="fx-readout">
+      <div class="fx-temp"><span id="fx-temp">—</span><em>°C</em></div>
+      <dl class="fx-wind">
+        <div><dt>wind</dt><dd id="fx-wind">—</dd></div>
+        <div><dt>gusts</dt><dd id="fx-gust">—</dd></div>
+      </dl>
+    </div>
+    <p class="fx-rule" id="fx-rule">Checking conditions against company policy…</p>
+    <p class="fx-stamp" id="fx-stamp"></p>
+  </section>
+
+  <!-- The interface. One target, thumb-reachable, hittable through a glove. -->
+  <main class="fx-main">
+    <button class="fx-mic" id="fx-mic" type="button" data-state="idle"
+            aria-label="Start talking to HeatSafe">
+      <span class="fx-ring" aria-hidden="true"></span>
+      <span class="fx-ring fx-ring-2" aria-hidden="true"></span>
+      <svg class="fx-mic-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+        <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+        <line x1="12" x2="12" y1="19" y2="22"/>
+      </svg>
+    </button>
+    <p class="fx-prompt" id="fx-prompt">Tap once. Then just talk.</p>
+    <p class="fx-sub" id="fx-sub">Stays listening until you tap again. Interrupt any time.</p>
+  </main>
+
+  <footer class="fx-foot">
+    <p id="fx-source">HeatSafe advises. Your supervisor decides.</p>
+  </footer>
+
+  <!-- Fallback: if the widget cannot be driven from our button, it is shown
+       rather than silently doing nothing. -->
+  <div class="fx-widget-host" id="fx-widget-host" data-visible="false"></div>
+
+  <script src="/static/field.js" defer></script>
+</body>
+</html>

@@ -95,3 +95,9 @@ def index() -> FileResponse:
 @app.get("/test")
 def test_console() -> FileResponse:
     return FileResponse(Path(ROOT_DIR) / "static" / "test.html")
+
+
+@app.get("/field")
+def field_view() -> FileResponse:
+    """Phone-first view: the one the worker actually holds."""
+    return FileResponse(Path(ROOT_DIR) / "static" / "field.html")

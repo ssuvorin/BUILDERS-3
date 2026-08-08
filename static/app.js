@@ -52,9 +52,39 @@ function render(data) {
   }
   const src = data.policy_source ?? data.policy_thresholds_still_valid?.source;
   sourceLine.textContent = src
-    ? `Thresholds: ${src} · Weather: live via context.dev · Final stop/go call: site supervisor`
+    ? `Thresholds: ${src} · Weather: ${data.weather_source ?? "live via context.dev"} · Final stop/go call: site supervisor`
     : "Final stop/go call: site supervisor";
+
+  // A material disagreement between weather providers is surfaced, not resolved
+  // silently — the reading decides a stop/go.
+  const noteEl = document.getElementById("source-note");
+  noteEl.hidden = !data.weather_note;
+  noteEl.textContent = data.weather_note ?? "";
+
+  // Readings go stale. Eval B3 #13: re-fetch rather than serving an old one.
+  const stamp = document.getElementById("reading-stamp");
+  if (hasReadings) {
+    stamp.hidden = false;
+    stamp.dataset.at = String(Date.now());
+    tickStamp();
+  } else {
+    stamp.hidden = true;
+  }
 }
+
+function tickStamp() {
+  const stamp = document.getElementById("reading-stamp");
+  if (!stamp || stamp.hidden || !stamp.dataset.at) return;
+  const secs = Math.round((Date.now() - Number(stamp.dataset.at)) / 1000);
+  const stale = secs >= 600;
+  stamp.dataset.stale = stale ? "true" : "false";
+  stamp.textContent = stale
+    ? `Reading is ${Math.floor(secs / 60)} min old — stale, re-check before acting.`
+    : secs < 60
+      ? `Read ${secs}s ago, live.`
+      : `Read ${Math.floor(secs / 60)} min ago.`;
+}
+setInterval(tickStamp, 5000);
 
 function setText(id, value) {
   document.getElementById(id).textContent = value;
