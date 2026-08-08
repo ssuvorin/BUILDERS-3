@@ -1,5 +1,4 @@
-/* Test console: native voice UI on the ElevenLabs client SDK
-   (no floating widget) + conditions strip + tap-to-copy questions. */
+/* Voice screen: native voice UI on the ElevenLabs client SDK. */
 
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client/+esm";
 
@@ -14,10 +13,10 @@ const transcript = document.getElementById("transcript");
 let conversation = null;
 
 const STATUS = {
-  idle: "Tap to start",
+  idle: "Tap to talk",
   connecting: "Connecting…",
-  listening: "Listening — go ahead",
-  speaking: "Speaking — tap to end, or just talk over it",
+  listening: "Listening…",
+  speaking: "Tap to end, or just talk over it",
 };
 
 function setState(state) {
@@ -95,9 +94,9 @@ async function checkConditions() {
     const state = data.verdict ?? "unknown";
     badge.dataset.state = state;
     badge.textContent = { go: "GO", restricted: "RESTRICTED", "no-go": "NO-GO", unknown: "UNVERIFIED" }[state] ?? state;
-    set("s-wind", data.wind_sustained_mph != null ? `wind ${data.wind_sustained_mph} mph` : "wind —");
-    set("s-gust", data.wind_gust_mph != null ? `gusts ${data.wind_gust_mph} mph` : "gusts —");
-    set("s-temp", data.temp_c != null ? `temp ${data.temp_c} °C` : "temp —");
+    set("s-wind", data.wind_sustained_mph != null ? `wind ${data.wind_sustained_mph} mph` : "");
+    set("s-gust", data.wind_gust_mph != null ? `gusts ${data.wind_gust_mph} mph` : "");
+    set("s-temp", data.temp_c != null ? `${data.temp_c} °C` : "");
   } catch {
     badge.dataset.state = "unknown";
     badge.textContent = "UNVERIFIED";
@@ -110,14 +109,3 @@ function set(id, text) {
 
 document.getElementById("refresh-btn").addEventListener("click", checkConditions);
 checkConditions();
-
-/* ---------- tap-to-copy questions ---------- */
-
-document.getElementById("q-grid").addEventListener("click", async (e) => {
-  const btn = e.target.closest(".q");
-  if (!btn) return;
-  const text = btn.childNodes[0].textContent.trim();
-  try { await navigator.clipboard.writeText(text); } catch { /* non-secure ctx */ }
-  btn.classList.add("copied");
-  setTimeout(() => btn.classList.remove("copied"), 900);
-});

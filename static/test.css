@@ -1,35 +1,54 @@
-/* Test console — minimal single-column layout on top of SnowUI tokens */
+/* Voice screen — minimal, single focal point */
 
-.test-main {
-  max-width: 42rem;
-  margin: 0 auto;
-  padding: 0 1.25rem calc(3rem + env(safe-area-inset-bottom));
-}
+html, body { height: 100%; }
+body.test-page { display: flex; flex-direction: column; }
 
+.top.slim { border-bottom: 0; background: transparent; backdrop-filter: none; }
 .top-link {
-  font-size: 13px; color: var(--fg-muted); text-decoration: none;
-  padding: 5px 12px; border-radius: var(--radius-full);
-  border: 1px solid var(--border);
+  font-size: 15px; color: var(--fg-muted); text-decoration: none;
+  width: 36px; height: 36px; display: grid; place-items: center;
+  border-radius: var(--radius-full);
 }
 .top-link:hover { background: var(--bg-muted); color: var(--fg); }
 
-.test-hero { text-align: center; padding: clamp(1.5rem, 5vw, 3rem) 0 1.25rem; }
-.test-hero h1 { font-size: clamp(22px, 5vw, 28px); line-height: 1.3; font-weight: 600; margin: 0 0 .5rem; letter-spacing: -0.01em; }
-.test-hero p { color: var(--fg-muted); font-size: 14px; line-height: 20px; margin: 0 auto; max-width: 28rem; }
+.voice-screen {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: flex-end;
+  padding: 0 1.25rem calc(1rem + env(safe-area-inset-bottom));
+  max-width: 34rem; margin: 0 auto; width: 100%;
+}
 
-/* voice orb */
-.voice { display: grid; justify-items: center; gap: 12px; margin-bottom: 2.25rem; }
+/* transcript: quiet, fades at the top, grows above the orb */
+.transcript {
+  width: 100%; flex: 1; min-height: 0;
+  overflow-y: auto; display: flex; flex-direction: column;
+  justify-content: flex-end; gap: 10px;
+  padding: 8px 4px;
+  mask-image: linear-gradient(to bottom, transparent, black 18%);
+  scrollbar-width: none;
+}
+.transcript::-webkit-scrollbar { display: none; }
+.transcript p { margin: 0; font-size: 14px; line-height: 20px; max-width: 85%; }
+.t-user { color: var(--fg-subtle); align-self: flex-end; text-align: right; }
+.t-agent { color: var(--fg); align-self: flex-start; }
+
+/* orb */
+.voice-center {
+  display: grid; justify-items: center; gap: 14px;
+  padding: 2rem 0 1.5rem;
+}
 .orb {
-  width: 96px; height: 96px; border-radius: var(--radius-full);
+  width: 112px; height: 112px; border-radius: var(--radius-full);
   border: 0; cursor: pointer; display: grid; place-items: center;
   background: var(--brand); color: #fff;
   box-shadow: var(--shadow-md);
   transition: background-color 150ms ease, transform 150ms ease;
 }
-.orb:hover { transform: scale(1.04); }
+.orb:hover { transform: scale(1.03); }
 .orb:focus-visible { outline: none; box-shadow: 0 0 0 4px hsl(217 91% 60% / 0.35); }
 .orb-icon {
-  width: 36px; height: 36px; fill: none; stroke: currentColor;
+  width: 40px; height: 40px; fill: none; stroke: currentColor;
   stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .orb[data-state="connecting"] { background: var(--fg-subtle); animation: orb-pulse 1.2s ease-in-out infinite; }
@@ -41,63 +60,26 @@
 }
 @keyframes orb-ring {
   0% { box-shadow: 0 0 0 0 hsl(160 84% 39% / 0.4); }
-  100% { box-shadow: 0 0 0 22px hsl(160 84% 39% / 0); }
+  100% { box-shadow: 0 0 0 26px hsl(160 84% 39% / 0); }
 }
 .voice-status { margin: 0; font-size: 13px; color: var(--fg-muted); }
 
-.transcript {
-  width: 100%; max-height: 220px; overflow-y: auto;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); padding: 12px 16px;
-  display: grid; gap: 8px;
+/* conditions: one quiet line */
+.slim-strip {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 12px; color: var(--fg-subtle);
+  background: none; border: 0; padding: 0; margin: 0;
 }
-.transcript p { margin: 0; font-size: 13px; line-height: 18px; }
-.t-user { color: var(--fg-muted); }
-.t-user::before { content: "You — "; font-weight: 600; }
-.t-agent { color: var(--fg); }
-.t-agent::before { content: "HeatSafe — "; font-weight: 600; color: var(--brand); }
+.slim-strip .badge { font-size: 11px; padding: 3px 9px; }
+.strip-item { font-variant-numeric: tabular-nums; }
+.strip-item:empty { display: none; }
+.strip-refresh {
+  background: none; border: 0; color: var(--fg-subtle);
+  font-size: 15px; cursor: pointer; padding: 6px;
+  border-radius: var(--radius-full); line-height: 1;
+}
+.strip-refresh:hover { color: var(--fg); background: var(--bg-muted); }
 
 @media (prefers-reduced-motion: reduce) {
   .orb { animation: none !important; transform: none !important; }
-}
-
-/* live conditions strip */
-.strip {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
-  flex-wrap: wrap;
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  padding: 8px 16px; margin-bottom: 2rem;
-}
-.strip-item {
-  font-size: 13px; color: var(--fg-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-/* questions */
-.test-qs h2 {
-  font-size: 13px; line-height: 18px; font-weight: 500;
-  color: var(--fg-subtle); text-align: center; margin: 0 0 12px;
-}
-.q-grid { display: grid; gap: 8px; }
-.q {
-  text-align: left; font-size: 14px; line-height: 20px;
-  background: var(--bg-elevated); color: var(--fg);
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 12px 16px; cursor: pointer; min-height: 44px;
-  transition: border-color 120ms ease, background-color 120ms ease;
-}
-.q:hover { border-color: var(--border-strong); background: var(--bg-muted); }
-.q em {
-  font-style: normal; font-size: 11px; font-weight: 600;
-  border-radius: var(--radius-full); padding: 2px 8px; margin-left: 6px;
-  white-space: nowrap; background: var(--bg-muted); color: var(--fg-muted);
-}
-.q.refuse em { background: var(--danger-soft); color: var(--danger); }
-.q.defer em { background: var(--warning-soft); color: var(--warning); }
-.q.copied { border-color: var(--success); box-shadow: 0 0 0 3px var(--success-soft); }
-
-.test-foot {
-  text-align: center; color: var(--fg-subtle);
-  font-size: 12px; line-height: 16px; margin-top: 2rem;
 }

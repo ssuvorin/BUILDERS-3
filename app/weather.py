@@ -11,9 +11,7 @@ import os
 import time
 from dataclasses import dataclass
 
-import httpx
-
-from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL
+from app import context_dev
 
 REFRESH_INTERVAL_SECONDS = float(os.getenv("WEATHER_REFRESH_INTERVAL", "120"))
 _STALE_AFTER_SECONDS = float(os.getenv("WEATHER_STALE_AFTER", "600"))
@@ -75,26 +73,21 @@ def snapshot(location: str) -> tuple[WeatherReading, float | None]:
 
 
 async def _fetch_weather_live(location: str) -> WeatherReading:
-    if not CONTEXT_DEV_API_KEY:
-        return WeatherReading(available=False, error="CONTEXT_DEV_API_KEY is not set")
     url = f"https://wttr.in/{location}?format=j1"
     try:
-        async with httpx.AsyncClient(timeout=45) as client:
-            resp = await client.post(
-                f"{CONTEXT_DEV_BASE_URL}/web/extract",
-                headers={"Authorization": f"Bearer {CONTEXT_DEV_API_KEY}"},
-                json={"url": url, "schema": _SCHEMA},
-            )
-            resp.raise_for_status()
-            data = resp.json().get("data") or {}
-    except (httpx.HTTPError, ValueError) as exc:
+        data = await context_dev.post("/web/extract", {"url": url, "schema": _SCHEMA})
+    except context_dev.ContextDevError as exc:
         return WeatherReading(available=False, error=f"weather source unavailable: {exc}")
     if data.get("wind_speed_kmh") is None:
         return WeatherReading(available=False, error="weather source returned no wind reading")
+
+    def num(key: str) -> float | None:
+        return float(data[key]) if data.get(key) is not None else None
+
     return WeatherReading(
         available=True,
         wind_speed_kmh=float(data["wind_speed_kmh"]),
-        wind_gust_kmh=float(data["wind_gust_kmh"]) if data.get("wind_gust_kmh") else None,
-        temp_c=float(data["temp_c"]) if data.get("temp_c") is not None else None,
+        wind_gust_kmh=num("wind_gust_kmh"),
+        temp_c=num("temp_c"),
         description=data.get("description"),
     )

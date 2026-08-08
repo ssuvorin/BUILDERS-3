@@ -95,10 +95,11 @@ def search_sops(req: SearchRequest) -> dict:
 @app.post("/tools/check_weather")
 async def check_weather(req: WeatherRequest) -> dict:
     """Site conditions vs the policy bands. Answers from the warm snapshot;
-    only blocks on a live fetch when no reading exists yet (first boot)."""
+    blocks on a live fetch only when there is no fresh reading to serve
+    (first boot, or a stale location the background refresher doesn't cover)."""
     location = req.location or SITE_LOCATION
     reading, age = weather.snapshot(location)
-    if not reading.available and age is None:
+    if not reading.available:
         reading = await weather.refresh(location)
         age = 0.0 if reading.available else None
     result = assess(reading, req.activity, _POLICY)
@@ -112,17 +113,11 @@ async def web_lookup(req: LookupRequest) -> dict:
     """Fetch official guidance / manufacturer docs as markdown via context.dev.
     Results rank BELOW company SOPs in source precedence."""
     try:
-        async with httpx.AsyncClient(timeout=45) as client:
-            resp = await client.post(
-                f"{CONTEXT_DEV_BASE_URL}/web/scrape/markdown",
-                headers={"Authorization": f"Bearer {CONTEXT_DEV_API_KEY}"},
-                json={"url": req.url},
-            )
-            resp.raise_for_status()
-            markdown = resp.json().get("data", {}).get("markdown", "")
-    except (httpx.HTTPError, ValueError) as exc:
+        data = await context_dev.post("/web/scrape/markdown", {"url": req.url})
+    except context_dev.ContextDevError as exc:
         return {"available": False, "error": str(exc)}
     return {
+        "markdown": data.get("markdown", "")[:6000],
         "available": True,
         "source": req.url,
         "markdown": markdown[:6000],
