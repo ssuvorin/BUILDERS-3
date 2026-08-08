@@ -39,9 +39,12 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
                     │ webhook tools (agent/tools.md)
                     ▼
         FastAPI backend (app/)
-        ├── /tools/search_sops    — retrieval over demo-data/*.md with source attribution
+        ├── /tools/search_sops    — BM25 retrieval over demo-data/*.md with source attribution
         ├── /tools/check_weather  — live wind/heat via context.dev vs thresholds read from the policy
-        └── /tools/web_lookup     — official guidance pages via context.dev (ranked below company data)
+        ├── /tools/web_search     — official-guidance web search via context.dev (below company data)
+        ├── /tools/web_lookup     — fetch a specific guidance page via context.dev (below company data)
+        ├── /api/voice-lease*     — capacity-based session slots (Redis, in-memory fallback)
+        └── /analytics/learn-list — most-asked topics + questions no SOP covers (doc gaps)
 ```
 
 - Team 21's company data (SOPs, wind policy, scaffold checklist) lives in
@@ -60,8 +63,8 @@ HeatSafe fuses two groups of data, and always knows which one it is quoting.
 
 | Data | Example | How it gets in |
 |---|---|---|
-| Weather | Temperature, humidity, forecast | context.dev `/web/extract` per query — never cached |
-| Wind | Sustained speed, gusts | context.dev `/web/extract` per query |
+| Weather | Temperature, humidity, forecast | context.dev `/web/extract`, refreshed every 120 s; readings report their age, anything older than the 10-min staleness budget is treated as unavailable |
+| Wind | Sustained speed, gusts | same reading — Open-Meteo primary (publishes gusts), wttr.in fallback; the answer names the source used |
 | Environmental conditions | Dust/shamal visibility, UV | assessed via the same live reading + policy rules |
 | Regional law | UAE federal / emirate requirements (MOHRE) | context.dev `/web/scrape/markdown` on demand |
 | Official HSE guidance | Government safety publications | context.dev `/web/scrape/markdown` on demand |
@@ -76,7 +79,7 @@ HeatSafe fuses two groups of data, and always knows which one it is quoting.
 | Checklists | MER-SC-003 Scaffold Inspection Checklist |
 | Site rules | Site-specific restrictions inside the SOPs |
 | Emergency procedures | Escalation tables (radio channel 2, 800-4400) |
-| Equipment procedures | Harness, ladder and platform rules in MER-SOP-014 |
+| Equipment procedures | Harness rules in MER-SOP-014; tool inspection and colour-tagging in MER-SOP-008 |
 
 When the two groups disagree, company data wins, and HeatSafe says so aloud.
 Company data is fictional demo data here, but is treated exactly as
@@ -93,7 +96,7 @@ set -a; source .env; set +a
 make run                  # serves on :8000
 ```
 
-Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":3,"thresholds":3}`
+Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":4,"policy_loaded":true}`
 
 ## Run the evals
 
@@ -101,16 +104,19 @@ Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":3,"thresholds":3}
 make eval
 ```
 
-17 cases from the eval spec (section B). Nearly half verify refusal/deferral
-behaviour — in a work-at-height domain, that is the product.
+36 deterministic cases: the eval spec (section B) plus regression tests for
+retrieval quality, weather staleness/fallback, the learn list and the voice
+lease pool. A quarter of them verify refusal/deferral behaviour — in a
+work-at-height domain, that is the product.
 
 ## ElevenLabs agent setup
 
 1. Create an agent at elevenlabs.io/app/agents.
 2. Paste `agent/prompt.md` as the system prompt.
-3. Add the three webhook tools from `agent/tools.md`, pointing at the deployed
+3. Add the webhook tools from `agent/tools.md`, pointing at the deployed
    backend URL (HTTPS).
-4. Put the agent id into `static/index.html` and open `/` for the widget page.
+4. Put the agent id into `static/test.js` (or pass it as `/test?agent=...`)
+   and open `/test` for the voice screen; `/` is the promo page.
 
 ## Spec-driven development
 
@@ -120,8 +126,10 @@ Built with [spec-kit](https://github.com/github/spec-kit):
 
 ## Known real-world requirements not built (by design)
 
-Offline mode, user accounts, real SOP ingestion pipeline, persistence,
-multilingual voice — out of scope for the demo, listed in the spec.
+Offline mode, user accounts, real SOP ingestion pipeline, persistence —
+out of scope for the demo, listed in the spec. (Multilingual behaviour is
+prompt-level: the agent answers in the worker's language; safety-critical
+phrasings are pinned per language in `agent/prompt.md`.)
 
 ## Deployment (demo)
 

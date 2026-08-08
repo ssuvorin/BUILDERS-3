@@ -89,7 +89,7 @@ rule takes over regardless of the weather.
 > and the agent says whose rule it is following. Plus live weather fused
 > with thresholds parsed from those same documents — the SOP is both the
 > knowledge base and the source of the numbers. And refusal as a feature:
-> nearly half our eval set verifies the agent declining, deferring or
+> a quarter of our eval set verifies the agent declining, deferring or
 > flagging weak sources.
 
 ## 6. Hardest problem (~30 sec)
@@ -98,11 +98,11 @@ rule takes over regardless of the weather.
 > into tool responses — retrieval chunks carry their source document,
 > thresholds are regex-parsed from the policy table with the exact quote
 > attached, and the weather tool returns an explicit "cannot verify" state.
-> That let us write 22 deterministic evals for behaviour that is usually
+> That let us write 36 deterministic evals for behaviour that is usually
 > vibes: the SOP-beats-internet case, the gust edge case, and
 > weather-source-down-never-assume-fine.
 
-<!-- 22, not 12 — count them with: grep -c "def test_" tests/test_evals.py
+<!-- 36 as of the last count — verify with: grep -c "def test_" tests/test_evals.py
      Re-check before recording; it has been rising all morning. -->
 
 **If there's time, the strongest version of this answer:** we found two of our
