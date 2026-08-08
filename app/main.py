@@ -75,27 +75,30 @@ class LeaseRequest(BaseModel):
 
 
 @app.post("/api/voice-lease")
-def voice_lease_acquire(response: Response) -> dict:
-    """One active voice session per deployment: acquire the lease or get busy."""
-    lease_id = voice_broker.acquire()
+async def voice_lease_acquire(response: Response) -> dict:
+    """Acquire a session slot (up to VOICE_MAX_SESSIONS concurrent)."""
+    lease_id = await voice_broker.broker.acquire()
+    active = await voice_broker.broker.active()
     if lease_id is None:
         response.status_code = 409
-        return {"granted": False, "reason": "another voice session is active"}
+        return {"granted": False, "reason": "all voice session slots are busy",
+                "active": active, "max": voice_broker.MAX_SESSIONS}
     return {"granted": True, "lease_id": lease_id,
-            "heartbeat_seconds": int(voice_broker.LEASE_TTL_SECONDS // 3)}
+            "heartbeat_seconds": int(voice_broker.LEASE_TTL_SECONDS // 3),
+            "active": active, "max": voice_broker.MAX_SESSIONS}
 
 
 @app.post("/api/voice-lease/heartbeat")
-def voice_lease_heartbeat(req: LeaseRequest, response: Response) -> dict:
-    if not voice_broker.heartbeat(req.lease_id):
+async def voice_lease_heartbeat(req: LeaseRequest, response: Response) -> dict:
+    if not await voice_broker.broker.heartbeat(req.lease_id):
         response.status_code = 410
         return {"ok": False, "reason": "lease lost"}
     return {"ok": True}
 
 
 @app.post("/api/voice-lease/release")
-def voice_lease_release(req: LeaseRequest) -> dict:
-    voice_broker.release(req.lease_id)
+async def voice_lease_release(req: LeaseRequest) -> dict:
+    await voice_broker.broker.release(req.lease_id)
     return {"ok": True}
 
 

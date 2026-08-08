@@ -233,32 +233,43 @@ def test_health_reports_loaded_docs():
     assert body["ok"] and body["sop_docs"] == expected_docs >= 3 and body["policy_loaded"]
 
 
-# --- voice session lease: one active session per deployment -----------------
+# --- voice session leases: capacity-based slot pool -------------------------
 
-def test_voice_lease_single_session(monkeypatch):
+def _fresh_memory_broker(monkeypatch, max_sessions):
     from app import voice_broker
-    monkeypatch.setattr(voice_broker, "_current", None)
+    impl = voice_broker.InMemoryBroker(max_sessions=max_sessions)
+    monkeypatch.setattr(voice_broker.broker, "_impl", impl)
+    return impl
 
-    first = client.post("/api/voice-lease")
-    assert first.status_code == 200 and first.json()["granted"]
-    lease_id = first.json()["lease_id"]
 
-    second = client.post("/api/voice-lease")
-    assert second.status_code == 409 and not second.json()["granted"]
+def test_voice_lease_capacity_and_release(monkeypatch):
+    from app import voice_broker
+    _fresh_memory_broker(monkeypatch, max_sessions=2)
+    monkeypatch.setattr(voice_broker, "MAX_SESSIONS", 2)
 
-    assert client.post("/api/voice-lease/heartbeat", json={"lease_id": lease_id}).json()["ok"]
-    client.post("/api/voice-lease/release", json={"lease_id": lease_id})
+    first = client.post("/api/voice-lease").json()
+    second = client.post("/api/voice-lease").json()
+    assert first["granted"] and second["granted"]
+
+    third = client.post("/api/voice-lease")
+    assert third.status_code == 409
+    assert third.json()["active"] == 2 and third.json()["max"] == 2
+
+    assert client.post("/api/voice-lease/heartbeat",
+                       json={"lease_id": first["lease_id"]}).json()["ok"]
+    client.post("/api/voice-lease/release", json={"lease_id": first["lease_id"]})
     assert client.post("/api/voice-lease").json()["granted"]
 
 
 def test_voice_lease_expires_when_holder_goes_silent(monkeypatch):
+    import asyncio
     import time as _time
 
-    from app import voice_broker
-    monkeypatch.setattr(voice_broker, "_current", None)
-    lease_id = voice_broker.acquire()
+    impl = _fresh_memory_broker(monkeypatch, max_sessions=1)
+    lease_id = asyncio.get_event_loop().run_until_complete(impl.acquire())
     assert lease_id is not None
+    assert asyncio.get_event_loop().run_until_complete(impl.acquire()) is None
     # simulate a crashed tab: TTL passes with no heartbeat
-    voice_broker._current.expires_at = _time.monotonic() - 1
-    assert not voice_broker.heartbeat(lease_id)
-    assert voice_broker.acquire() is not None
+    impl._leases[lease_id] = _time.time() - 1
+    assert not asyncio.get_event_loop().run_until_complete(impl.heartbeat(lease_id))
+    assert asyncio.get_event_loop().run_until_complete(impl.acquire()) is not None

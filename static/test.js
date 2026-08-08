@@ -93,7 +93,7 @@ async function start() {
   if (!lease) {
     starting = false;
     setState("idle");
-    voiceStatus.textContent = "Another session is active — try again in a moment";
+    voiceStatus.textContent = "All session slots are busy — try again in a moment";
     return;
   }
   try {
