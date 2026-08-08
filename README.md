@@ -7,13 +7,13 @@ vertical; what changes per client is a config block and a document pack
 (see `agent/deployment-configs.md`).
 
 This demo is the first deployment: construction, for a fictional client —
-**Meridian Construction LLC**, a Dubai-based UAE contractor.
+**Team 21**, a Dubai-based UAE contractor.
 
 Workers and supervisors get hands-free, on-demand answers to two questions:
 
 - **WHEN should we do this job?** — live wind and heat checked against
-  Meridian's own policies.
-- **HOW should I do this job?** — Meridian's procedures and checklists,
+  Team 21's own policies.
+- **HOW should I do this job?** — Team 21's procedures and checklists,
   walked through by voice.
 
 HeatSafe doesn't simply search the internet — it understands which source has
@@ -44,10 +44,10 @@ Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
         └── /tools/web_lookup     — official guidance pages via context.dev (ranked below company data)
 ```
 
-- Meridian's company data (SOPs, wind policy, scaffold checklist) lives in
+- Team 21's company data (SOPs, wind policy, scaffold checklist) lives in
   `demo-data/` — faked for the demo, treated exactly as enterprise data.
 - Wind/heat thresholds are **parsed from the policy text**, never hardcoded.
-  Meridian restricts work above 6 m from 17 mph sustained — stricter than
+  Team 21 restricts work above 6 m from 17 mph sustained — stricter than
   commonly cited external guidance — and HeatSafe says whose rule it is
   following. Bands: normal / restricted / suspended, plus heat bands and
   the UAE summer midday break (12:30–15:00, 15 Jun–15 Sep).

@@ -16,7 +16,7 @@ actually changes between deployments — and how little it is.
 
 ## 1. Construction (live demo)
 
-- Client: Meridian Construction LLC
+- Client: Team 21
 - Site: Harbour Point Tower, Dubai Marina, UAE
 - Frontline roles: scaffolders, working-at-height crews, supervisors
 - Company documents: MER-SOP-014 (working at height), MER-SOP-021 (adverse

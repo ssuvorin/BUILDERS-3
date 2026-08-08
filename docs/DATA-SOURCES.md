@@ -18,7 +18,7 @@ Every number the agent speaks must trace to a row below. Nothing here is asserte
 
 ## Tier 1. Client data
 
-Highest authority. Private Meridian Construction LLC documents, pre-loaded in the team repo's `demo-data/`. These outrank everything below, **including regulation**, wherever Meridian is stricter.
+Highest authority. Private Team 21 documents, pre-loaded in the team repo's `demo-data/`. These outrank everything below, **including regulation**, wherever Team 21 is stricter.
 
 | Document | Covers |
 |---|---|

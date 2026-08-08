@@ -77,7 +77,7 @@ The UAE is the launch market. HeatSafe is a B2B product for frontline safety in 
 
 Three things break. Two are cheap. One is the product.
 
-### 3a. Bring your own documentation, as long as you write it like Meridian
+### 3a. Bring your own documentation, as long as you write it like Team 21
 
 The threshold parser reads a specific document. Not a specific *format*, a specific *wording*: the literal words `Restricted` and `Elevated` as table row labels, the phrase `stop at N mph sustained`, the phrase `prohibited between HH:MM and HH:MM`, and English month names.
 

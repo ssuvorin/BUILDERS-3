@@ -11,7 +11,7 @@ is *not* the company's policy, and people fall off scaffolding.
 
 Voice is not a gimmick here — it is the only interface that works when both
 hands are on a ladder. The user is the worker or supervisor on site; the buyer is the contractor
-(here: fictional Meridian Construction LLC, a Dubai-based UAE contractor)
+(here: fictional Team 21, a Dubai-based UAE contractor)
 whose SOPs become the copilot's source of truth. In the UAE the live-
 conditions half is even sharper: wind on high-rise scaffolds plus heat
 stress rules (midday break, temperature limits).
@@ -48,7 +48,7 @@ Worker voice ⇄ ElevenLabs Agent (system prompt: agent/prompt.md)
 Data flow for the key demo moment: worker asks "can we work on the scaffold?"
 → agent calls `check_weather("working on scaffolding")` → backend fetches live
 wind via context.dev → assesses it against the restricted (17 mph) and
-suspended (22 mph) bands parsed from the Meridian policy → returns the band +
+suspended (22 mph) bands parsed from the Team 21 policy → returns the band +
 figures + source → agent speaks the verdict, names MER-SOP-021, and defers
 the final call to the supervisor.
 

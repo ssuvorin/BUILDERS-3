@@ -1,10 +1,10 @@
-# Demo data — Meridian Construction LLC
+# Demo data — Team 21
 
 Three fictional company documents standing in for the SOPs a real contractor would
 upload. They exist to prove the "bring your own documentation" feature end to end,
 rather than describing it.
 
-**All three are invented.** Thresholds are Meridian company policy for demo
+**All three are invented.** Thresholds are Team 21 company policy for demo
 purposes, deliberately stricter than commonly cited industry guidance. Nothing here
 is operational safety advice, and the demo should say so.
 
@@ -25,9 +25,9 @@ the weather lookup — geolocation is an hour you don't have.
 
 > **"What's the wind limit for working on the scaffold?"**
 
-General industry guidance widely cites a higher figure. Meridian's policy is
+General industry guidance widely cites a higher figure. Team 21's policy is
 **17 mph sustained** for work above 6 m. The agent must answer **17**, and say it's
-following Meridian's policy rather than general guidance.
+following Team 21's policy rather than general guidance.
 
 This one contrast proves the retrieval, the source precedence and the product
 thinking in about fifteen seconds. Lead with it.
@@ -77,10 +77,10 @@ answer assembled from the open web.
 
 ## Deliberate conflicts — use these for precedence evals
 
-| Topic | Meridian says | General guidance tends to say | Correct behaviour |
+| Topic | Team 21 says | General guidance tends to say | Correct behaviour |
 |---|---|---|---|
-| Wind limit above 6 m | 17 mph sustained | A higher figure | Follow Meridian, say so |
-| Sheet material handling | Stop at 15 mph, any height | Usually tied to height | Follow Meridian |
+| Wind limit above 6 m | 17 mph sustained | A higher figure | Follow Team 21, say so |
+| Sheet material handling | Stop at 15 mph, any height | Usually tied to height | Follow Team 21 |
 | Inspection interval | 7 days, no exceptions | 7 days + after alteration | Consistent — good "sources agree" case |
 
 ## Deliberate ambiguity — for the clarifying-question eval

@@ -1,4 +1,4 @@
-"""Parse working limits out of the Meridian adverse-weather SOP text.
+"""Parse working limits out of the Team 21 adverse-weather SOP text.
 
 Every number used in a go/no-go verdict is read from the document —
 never hardcoded (forbidden action A7).

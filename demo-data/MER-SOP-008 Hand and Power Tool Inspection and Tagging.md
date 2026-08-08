@@ -1,12 +1,12 @@
 ---
 document_id: MER-SOP-008
 title: Hand and Power Tool Inspection and Tagging
-company: Meridian Construction LLC
+company: Team 21
 version: 5.0
 effective_date: 2026-01-05
 next_review: 2027-01-05
-owner: Site Manager, Meridian Construction LLC
-applies_to: All Meridian sites, UAE
+owner: Site Manager, Team 21
+applies_to: All Team 21 sites, UAE
 related: MER-SOP-021
 ---
 
@@ -17,7 +17,7 @@ related: MER-SOP-021
 ## 1. Purpose
 
 To set out the routine inspection and colour-tagging of hand tools and portable power
-tools at Meridian sites.
+tools at Team 21 sites.
 
 This is a **routine housekeeping task**, not a safety-critical procedure. It is one of
 the standing internal jobs crews move onto when external work is stopped
@@ -105,4 +105,4 @@ tool electrically.
 | Burning smell, sparking or shock from a tool | **Stop. Unplug at the socket. Site Supervisor immediately, channel 2.** |
 
 ---
-*MER-SOP-008 v5.0 — Meridian Construction LLC — fictional demo document*
+*MER-SOP-008 v5.0 — Team 21 — fictional demo document*

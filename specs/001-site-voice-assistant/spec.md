@@ -22,9 +22,9 @@ answer contains the correct steps and names the SOP document.
 
 **Acceptance Scenarios**:
 
-1. **Given** the Meridian SOPs are loaded, **When** the worker asks "what do I check before using this scaffold", **Then** the answer lists the four checks and names MER-SOP-014.
+1. **Given** the Team 21 SOPs are loaded, **When** the worker asks "what do I check before using this scaffold", **Then** the answer lists the four checks and names MER-SOP-014.
 2. **Given** the same question asked with filler words and casual phrasing, **When** processed, **Then** the same answer is produced.
-3. **Given** company SOP and general web guidance conflict (wind threshold), **When** asked, **Then** the agent follows the SOP figure and says it is following the Meridian policy.
+3. **Given** company SOP and general web guidance conflict (wind threshold), **When** asked, **Then** the agent follows the SOP figure and says it is following the Team 21 policy.
 
 ---
 
@@ -88,7 +88,7 @@ and defers safety go/no-go decisions to the supervisor.
 
 ## Success Criteria *(mandatory)*
 
-- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Meridian's 17 mph restriction, names MER-SOP-021, notes it is stricter than general guidance.
+- **SC-001**: The SOP-vs-internet contrast moment works live: agent quotes Team 21's 17 mph restriction, names MER-SOP-021, notes it is stricter than general guidance.
 - **SC-002**: Eval set (B1–B5) green from one command.
 - **SC-003**: A stranger can clone → install → run from the README alone.
 - **SC-004**: ~half of eval cases verify refusal/deferral/flagging behaviour.
@@ -102,7 +102,7 @@ as a real-world requirement, not built).
 
 ## Assumptions
 
-- Product: HeatSafe Voice Copilot (HeatSafe Technologies). Demo client is fictional "Meridian Construction LLC" (Dubai, UAE); company data lives in `demo-data/`.
+- Product: HeatSafe Voice Copilot (HeatSafe Technologies). Demo client is fictional "Team 21" (Dubai, UAE); company data lives in `demo-data/`.
 - Voice in/out via ElevenLabs Agents platform; agent tools call our webhook backend.
 - Live weather + web lookups via context.dev; weather source degradation handled explicitly.
 - Site location fixed for the demo (configurable via env), Dubai by default.

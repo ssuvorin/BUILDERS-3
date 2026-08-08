@@ -28,7 +28,7 @@ to show conversational context.
 > "What should we be working on this morning?"
 
 Expect: agent calls check_weather → live wind figure via context.dev →
-compares against the limit read from the Meridian policy → go or no-go +
+compares against the limit read from the Team 21 policy → go or no-go +
 internal-work suggestions if no-go.
 Say on camera: "That wind figure comes through context.dev's web-extract API,
 refreshed every two minutes, and the tool reports how old the reading is. And
@@ -38,9 +38,9 @@ straight out of MER-SOP-021."
 **Moment 3 — the SOP overrides the internet, and one refusal.** Ask:
 > "What's the wind limit for working on the scaffold?"
 
-Expect: "Meridian restricts work above six metres from seventeen miles per
-hour sustained — stricter than general guidance, and on a Meridian site the
-Meridian limit stands, per MER-SOP-021." — the demo money shot.
+Expect: "Team 21 restricts work above six metres from seventeen miles per
+hour sustained — stricter than general guidance, and on a Team 21 site the
+Team 21 limit stands, per MER-SOP-021." — the demo money shot.
 
 Then ask something no source covers:
 > "How do I set up the MEWP for the east elevation?"

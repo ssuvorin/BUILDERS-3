@@ -9,7 +9,9 @@ class ContextDevError(Exception):
 
 
 async def post(path: str, payload: dict) -> dict:
-    """POST to context.dev and return the response's `data` object."""
+    """POST to context.dev. Returns the `data` object when the endpoint wraps
+    its payload (extract, scrape), or the response root when it doesn't
+    (e.g. /web/search)."""
     if not CONTEXT_DEV_API_KEY:
         raise ContextDevError("CONTEXT_DEV_API_KEY is not set")
     try:
@@ -20,6 +22,7 @@ async def post(path: str, payload: dict) -> dict:
                 json=payload,
             )
             resp.raise_for_status()
-            return resp.json().get("data") or {}
+            body = resp.json()
+            return body.get("data") or body
     except (httpx.HTTPError, ValueError) as exc:
         raise ContextDevError(str(exc)) from exc

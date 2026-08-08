@@ -66,12 +66,12 @@ def test_b2_6_mewp_procedure_not_covered_returns_nothing():
 
 
 def test_b2_7_sop_overrides_general_web_guidance():
-    """The money shot: Meridian restricts work above 6 m from 17 mph sustained —
+    """The money shot: Team 21 restricts work above 6 m from 17 mph sustained —
     stricter than commonly cited external guidance. Parsed from the SOP."""
     assert POLICY is not None
     assert POLICY.restricted_wind_mph == 17.0
     assert "MER-SOP-021" in POLICY.source_doc
-    # 20 mph sustained: fine per general guidance, restricted per Meridian
+    # 20 mph sustained: fine per general guidance, restricted per Team 21
     reading = WeatherReading(available=True, wind_speed_kmh=_kmh(20), temp_c=30.0)
     result = assess(reading, "working on the scaffold", POLICY, now=WINTER_NOON)
     assert result["verdict"] == "restricted"
@@ -318,6 +318,41 @@ def test_ui_condition_polls_are_not_recorded():
     client.post("/tools/check_weather", json={"activity": "external work"},
                 headers={"X-HeatSafe-UI": "1"})
     assert asklog.learn_list()["total_questions"] == 0
+
+
+# --- web_search: the step between empty SOPs and a refusal ------------------
+
+def test_web_search_returns_ranked_results(monkeypatch):
+    from app import main
+
+    async def fake_search(_query):
+        return [{"title": "DEWA Regulations", "url": "https://www.dewa.gov.ae/x",
+                 "snippet": "electrical installations", "relevance": "high"}]
+
+    monkeypatch.setattr(main.websearch, "search", fake_search)
+    body = client.post("/tools/web_search", json={"query": "electrical socket rules"}).json()
+    assert body["available"] and body["results"][0]["url"].startswith("https://www.dewa")
+    assert "web_lookup" in body["guidance"]
+
+
+def test_web_search_degrades_to_refusal_guidance(monkeypatch):
+    from app import main
+
+    async def empty(_query):
+        return []
+
+    monkeypatch.setattr(main.websearch, "search", empty)
+    body = client.post("/tools/web_search", json={"query": "zzz"}).json()
+    assert body["results"] == [] and "refuse" in body["guidance"]
+
+
+def test_web_search_ranks_official_sources_first():
+    from app import websearch
+    ranked = websearch.rank([
+        {"title": "Blog", "url": "https://blog.example.com/a", "description": ""},
+        {"title": "MOHRE", "url": "https://www.mohre.gov.ae/rules", "description": ""},
+    ])
+    assert "gov.ae" in ranked[0]["url"]
 
 
 # --- voice session leases: capacity-based slot pool -------------------------

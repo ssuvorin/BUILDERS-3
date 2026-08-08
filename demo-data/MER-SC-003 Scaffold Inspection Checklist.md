@@ -1,12 +1,12 @@
 ---
 document_id: MER-SC-003
 title: Scaffold Inspection Checklist
-company: Meridian Construction LLC
+company: Team 21
 version: 3.0
 effective_date: 2026-03-15
 next_review: 2027-03-15
-owner: Scaffold Supervisor, Meridian Construction LLC
-applies_to: All Meridian sites, UAE
+owner: Scaffold Supervisor, Team 21
+applies_to: All Team 21 sites, UAE
 related: MER-SOP-014
 ---
 
@@ -105,4 +105,4 @@ Copy to the site inspection register within 24 hours. Red-tag defects reported t
 the Site Manager (Ext. 4102) immediately, not at end of shift.
 
 ---
-*MER-SC-003 v3.0 — Meridian Construction LLC — fictional demo document*
+*MER-SC-003 v3.0 — Team 21 — fictional demo document*

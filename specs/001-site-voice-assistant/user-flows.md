@@ -1,5 +1,5 @@
 # Builder Lab — User Flows
-### Voice site assistant for construction workers — Meridian Construction demo
+### Voice site assistant for construction workers — Team 21 demo
 
 Companion to [[Builder Lab - Spec and Evals]]. The spec says *what* it does and the
 eval set says *when it's done*. This says **what actually happens, turn by turn** —
@@ -24,7 +24,7 @@ flowchart TD
     C -->|Yes| D[Classify: domain / live-data / safety-critical / ambiguous]
     D --> E{In domain?}
     E -->|No| E1[Decline briefly, no lecture] --> Z
-    E --> F[Retrieve: Meridian SOP corpus]
+    E --> F[Retrieve: Team 21 SOP corpus]
     F --> G{Needs live conditions?}
     G -->|Yes| H[Fetch weather for Harbour Point Tower]
     G -->|No| I
@@ -50,7 +50,7 @@ flowchart TD
 |---|---|---|
 | 1 | **Transcription** | Low confidence → ask for a repeat. Never answer a misheard question. |
 | 2 | **Domain** | Off-domain → one short decline. |
-| 3 | **SOP retrieval** | Meridian corpus is always searched first, before any web call. |
+| 3 | **SOP retrieval** | Team 21 corpus is always searched first, before any web call. |
 | 4 | **Live data** | Fetched only when the question turns on current conditions. |
 | 5 | **Precedence** | Company SOP → regulation → manufacturer → general web. |
 | 6 | **Ambiguity** | Two plausible referents → ask, don't guess. |
@@ -81,10 +81,10 @@ Notation: **WORKER** speaks · **SYSTEM** is internal · **AGENT** speaks back.
 2. **SYSTEM** — classify: in domain · no live data needed · **safety-critical**.
 3. **SYSTEM** — retrieve → `MER-SOP-014 §2.2` (7-day rule) + `§7` (inspection regime).
 4. **SYSTEM** — resolve date: needs today's date, not weather. Today − 28th = 9 days.
-5. **AGENT** — *"That's nine days ago. Meridian's procedure for working at height says
+5. **AGENT** — *"That's nine days ago. Team 21's procedure for working at height says
    the inspection has to be within the last seven days, and out of date means don't
    use it. Come down and report it to your supervisor on channel two. That's from
-   Meridian's working-at-height procedure, SOP fourteen."*
+   Team 21's working-at-height procedure, SOP fourteen."*
 
 **Branches**
 - Worker gives no date → *"What date's on the tag?"* (gate 6, ambiguity).
@@ -106,13 +106,13 @@ set — build this one first.
    *reading*) · safety-critical.
 3. **SYSTEM** — retrieve → `MER-SOP-021 §3` (17 mph sustained above 6 m) **and** the
    supervisor note in the same section: *deliberately lower than general guidance;
-   Meridian policy takes precedence.*
+   Team 21 policy takes precedence.*
 4. **SYSTEM** — conflict detected: company SOP vs. general-guidance figure asserted by
    the user. Precedence → **company SOP wins**, and the win must be spoken aloud.
-5. **AGENT** — *"On a Meridian site it's seventeen miles an hour sustained for work
+5. **AGENT** — *"On a Team 21 site it's seventeen miles an hour sustained for work
    above six metres. Twenty-three is the figure general industry guidance tends to
-   quote — Meridian's limit is deliberately stricter, and on a Meridian site the
-   company limit stands. That's Meridian SOP twenty-one, section three."*
+   quote — Team 21's limit is deliberately stricter, and on a Team 21 site the
+   company limit stands. That's Team 21 SOP twenty-one, section three."*
 
 **Branches**
 - *"Are you sure? I've worked three sites that said twenty-three."* → holds the line,
@@ -139,11 +139,11 @@ The whole BYO-documentation case is this one turn.
    discretion*) + `§7` (internal sequence).
 5. **SYSTEM** — the break rule is **absolute** — it short-circuits the wind check. Do
    not fetch-and-compare wind and then also mention the break; lead with the blocker.
-6. **AGENT** — *"No — it's twenty to one on the eighth of August. Meridian prohibits
+6. **AGENT** — *"No — it's twenty to one on the eighth of August. Team 21 prohibits
    work in direct sun or open external areas between half twelve and three, June the
    fifteenth to September the fifteenth. That one's company-wide and it isn't the
    supervisor's call. The internal list has blockwork on floors three to eight, and
-   first-fix M and E in Tower A, levels four to six. Meridian SOP twenty-one."*
+   first-fix M and E in Tower A, levels four to six. Team 21 SOP twenty-one."*
 
 **Branches**
 - *"Supervisor said it's fine"* → *"That rule isn't subject to supervisor discretion
@@ -168,9 +168,9 @@ the next three hours of work rather than just saying no. Second demo moment.
 4. **SYSTEM** — retrieve `MER-SOP-021 §3` band table. Compare: 19 sustained → restricted
    (17–22). 28 gusting → restricted (25–33). Both land in the same band.
 5. **SYSTEM** — restricted is **not** a simple stop. Emit all three consequences.
-6. **AGENT** — *"Nineteen sustained, gusting twenty-eight. That puts you in Meridian's
+6. **AGENT** — *"Nineteen sustained, gusting twenty-eight. That puts you in Team 21's
    restricted band — no work above six metres, no sheeting, no panel handling and no
-   material hoisting. Ground-level external work can carry on. Meridian SOP
+   material hoisting. Ground-level external work can carry on. Team 21 SOP
    twenty-one, section three."*
 
 **Branches**
@@ -201,8 +201,8 @@ nobody remembers under pressure.
 5. **SYSTEM** — verify the live reading rather than trusting the worker's "sixteen".
 6. **AGENT** — *"No. I've got sixteen sustained at the tower. You're right that ground
    level is fine for wind generally, but formwork panels come under the sail rule —
-   Meridian stops sheet materials, formwork and anything acting as a sail at fifteen
-   miles an hour sustained, at any height. Meridian SOP twenty-one, section three."*
+   Team 21 stops sheet materials, formwork and anything acting as a sail at fifteen
+   miles an hour sustained, at any height. Team 21 SOP twenty-one, section three."*
 
 **Branches**
 - Worker names no material (*"alright to carry on down here?"*) → **ask what they're
@@ -235,7 +235,7 @@ than a laminated chart on the wall". Hold it back for Q&A.
    re-inspected, and last night's sustained wind was over twenty-two, which triggers a
    re-inspection on its own. The inspection has to be done by someone with a competence
    card. And resumption after a suspension is authorised by the Site Manager, extension
-   four-one-zero-two — not the supervisor. That's from Meridian's weather policy, the
+   four-one-zero-two — not the supervisor. That's from Team 21's weather policy, the
    inspection checklist and SOP twenty-one."*
 
 **Branches**
@@ -259,7 +259,7 @@ short, this is the one to cut.
 4. **SYSTEM** — safety-critical + insufficient coverage → **do not escalate to general
    web.** The web has plenty on MEWP setup. That is exactly the failure being prevented.
 5. **AGENT** — *"I don't know how to do that. You need to ask someone else. There's
-   nothing in Meridian's documents covering MEWP setup — the only thing I've got is
+   nothing in Team 21's documents covering MEWP setup — the only thing I've got is
    that a harness is required for all work from a MEWP. Your supervisor is on channel
    two."*
 
@@ -292,7 +292,7 @@ refusal path *before* the answer paths — retrofitting it never works.
    degrees, under the forty-two mark. Before you go up you still need the four checks —
    green tag, dated in the last seven days, conditions checked, and a visual for
    missing boards, guardrails or ties. The stop-go call is your supervisor's, channel
-   two. And Meridian's policy works one way: you can stop work on your own judgement
+   two. And Team 21's policy works one way: you can stop work on your own judgement
    any time, but nobody decides on their own that it's safe to go up."*
 
 **Branches**

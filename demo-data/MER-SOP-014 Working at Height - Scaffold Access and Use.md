@@ -1,12 +1,12 @@
 ---
 document_id: MER-SOP-014
 title: Working at Height — Scaffold Access and Use
-company: Meridian Construction LLC
+company: Team 21
 version: 6.2
 effective_date: 2026-03-15
 next_review: 2027-03-15
-owner: HSE Manager, Meridian Construction LLC
-applies_to: All Meridian sites, UAE
+owner: HSE Manager, Team 21
+applies_to: All Team 21 sites, UAE
 related: MER-SOP-021, MER-SC-003
 ---
 
@@ -16,7 +16,7 @@ related: MER-SOP-021, MER-SC-003
 
 ## 1. Purpose
 
-To set out how Meridian operatives access, use and work from scaffold structures,
+To set out how Team 21 operatives access, use and work from scaffold structures,
 and the checks required before doing so.
 
 ## 2. Before you go up — the four checks
@@ -114,4 +114,4 @@ needing permission.** Report it afterwards; do not seek approval first.
 | Fall, near miss, or dropped object | **Stop work. Site emergency 800-4400.** Report within the hour. |
 
 ---
-*MER-SOP-014 v6.2 — Meridian Construction LLC — fictional demo document*
+*MER-SOP-014 v6.2 — Team 21 — fictional demo document*

@@ -8,7 +8,7 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 ## 1. search_sops
 
 - **Name**: `search_sops`
-- **Description**: Search Meridian Construction LLC's company data: SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.
+- **Description**: Search Team 21's company data: SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.
 - **Method**: POST
 - **URL**: `https://13.143.65.45.sslip.io/tools/search_sops`
 - **Body parameters**:
@@ -17,16 +17,25 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 ## 2. check_weather
 
 - **Name**: `check_weather`
-- **Description**: Get live wind speed (km/h) and temperature for the Dubai site and a go/no-go verdict against the threshold read from the Meridian Wind & Weather Policy. Use for any question about outside work, scaffolding, cranes, heat, or "what should we do today". Never quote thresholds from memory.
+- **Description**: Get live wind speed (km/h) and temperature for the Dubai site and a go/no-go verdict against the threshold read from the Team 21 Wind & Weather Policy. Use for any question about outside work, scaffolding, cranes, heat, or "what should we do today". Never quote thresholds from memory.
 - **Method**: POST
 - **URL**: `https://13.143.65.45.sslip.io/tools/check_weather`
 - **Body parameters**:
   - `activity` (string, required): the activity being asked about, e.g. "working on scaffolding", "crane lift", "handling sheet materials".
 
-## 3. web_lookup
+## 3. web_search
+
+- **Name**: `web_search`
+- **Description**: Search the live web when the company documents do not cover the question. Use IMMEDIATELY after an empty search_sops result, before any refusal. Returns titles, URLs and snippets with official sources (UAE regulators, HSE, OSHA, manufacturers) ranked first — pick one and read it with web_lookup.
+- **Method**: POST
+- **URL**: `https://13.143.65.45.sslip.io/tools/web_search`
+- **Body parameters**:
+  - `query` (string, required): the worker's question as a web search query, e.g. "UAE regulations temporary electrical installation construction site".
+
+## 4. web_lookup
 
 - **Name**: `web_lookup`
-- **Description**: Fetch an official guidance page (UAE regulations, official HSE publications, manufacturer documentation) as text when Meridian's company documents do not cover the question. Results rank BELOW company data. Useful start: https://www.mohre.gov.ae or https://www.hse.gov.uk/work-at-height/index.htm
+- **Description**: Fetch an official guidance page (UAE regulations, official HSE publications, manufacturer documentation) as text when Team 21's company documents do not cover the question. Results rank BELOW company data. Useful start: https://www.mohre.gov.ae or https://www.hse.gov.uk/work-at-height/index.htm
 - **Method**: POST
 - **URL**: `https://13.143.65.45.sslip.io/tools/web_lookup`
 - **Body parameters**:
@@ -42,7 +51,7 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 {
   "type": "webhook",
   "name": "search_sops",
-  "description": "Search the client company's data (Meridian Construction LLC): SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.",
+  "description": "Search the client company's data (Team 21): SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.",
   "api_schema": {
     "url": "https://13.143.65.45.sslip.io/tools/search_sops",
     "method": "POST",
@@ -109,6 +118,56 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
           "id": "activity",
           "type": "string",
           "description": "The physical activity the user is asking about, as a short phrase. Examples: \"working on the scaffold\", \"handling sheet materials\", \"crane lift\", \"external work\". If the user asks generally what to work on today, use \"external work\".",
+          "required": true,
+          "value_type": "llm_prompt",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null
+        }
+      ]
+    },
+    "request_headers": [],
+    "content_type": "application/json",
+    "auth_connection": null
+  },
+  "response_timeout_secs": 60,
+  "dynamic_variables": {
+    "dynamic_variable_placeholders": {}
+  },
+  "assignments": [],
+  "interruption_mode": "allow",
+  "pre_tool_speech": "auto",
+  "tool_call_sound": null,
+  "tool_call_sound_behavior": "auto",
+  "execution_mode": "immediate",
+  "tool_error_handling_mode": "auto",
+  "response_mocks": []
+}
+```
+
+### web_search
+
+```json
+{
+  "type": "webhook",
+  "name": "web_search",
+  "description": "Search the live web when the company documents do not cover the question. Use IMMEDIATELY after an empty search_sops result, before any refusal. Returns titles, URLs and snippets with official sources ranked first — pick the most authoritative and read it with web_lookup. Results rank BELOW company data.",
+  "api_schema": {
+    "url": "https://13.143.65.45.sslip.io/tools/web_search",
+    "method": "POST",
+    "path_params_schema": [],
+    "query_params_schema": [],
+    "request_body_schema": {
+      "id": "body",
+      "type": "object",
+      "description": "Web search request.",
+      "required": true,
+      "value_type": "llm_prompt",
+      "properties": [
+        {
+          "id": "query",
+          "type": "string",
+          "description": "The worker's question rephrased as a web search query. Include the jurisdiction when relevant, e.g. \"UAE regulations temporary electrical installation construction site\".",
           "required": true,
           "value_type": "llm_prompt",
           "dynamic_variable": "",

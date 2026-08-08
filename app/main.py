@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import asklog, context_dev, sops, voice_broker, weather
+from app import asklog, context_dev, sops, voice_broker, weather, websearch
 from app.config import ROOT_DIR, SITE_LOCATION
 from app.policy import extract_policy
 from app.verdict import assess
@@ -132,6 +132,32 @@ def search_sops(req: SearchRequest) -> dict:
         "defer only if that finds nothing. Do not invent."
         if not results
         else "Answer from these chunks only; name the source document aloud.",
+    }
+
+
+class WebSearchRequest(BaseModel):
+    query: str
+
+
+@app.post("/tools/web_search")
+async def web_search(req: WebSearchRequest) -> dict:
+    """Live web search via context.dev. Official sources ranked first.
+    The agent picks a result and fetches it with web_lookup."""
+    try:
+        results = await websearch.search(req.query)
+    except context_dev.ContextDevError as exc:
+        return {"available": False, "error": str(exc), "results": []}
+    asklog.record("web_search", req.query, f"web: {req.query.lower().strip()}",
+                  covered=bool(results))
+    return {
+        "available": True,
+        "results": results,
+        "guidance": "Pick the most authoritative result (regulator/manufacturer "
+        "first), fetch it with web_lookup, and answer from what the page says. "
+        "Name the source aloud and flag it as not company policy."
+        if results
+        else "Nothing relevant found on the live web either — now refuse and "
+        "defer to the supervisor.",
     }
 
 
