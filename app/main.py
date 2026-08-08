@@ -2,6 +2,7 @@
 import asyncio
 import contextlib
 import logging
+import mimetypes
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,6 +16,8 @@ from app import asklog, context_dev, sops, voice_broker, weather
 from app.config import ROOT_DIR, SITE_LOCATION
 from app.policy import extract_policy
 from app.verdict import assess
+
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("heatsafe")
@@ -182,3 +185,12 @@ def index() -> FileResponse:
 @app.get("/test")
 def test_console() -> FileResponse:
     return FileResponse(Path(ROOT_DIR) / "static" / "test.html")
+
+
+@app.get("/sw.js")
+def service_worker() -> FileResponse:
+    return FileResponse(
+        Path(ROOT_DIR) / "static" / "sw.js",
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/"},
+    )
