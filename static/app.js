@@ -1,6 +1,6 @@
 /* HeatSafe demo page: live conditions panel + ElevenLabs widget loader. */
 
-const DEFAULT_AGENT_ID = "AGENT_ID_HERE"; // replaced at deploy time or via ?agent=
+const DEFAULT_AGENT_ID = "agent_5901kzg1ns03eyv8n4em0y9m97bn"; // override via ?agent=
 
 /* ---------- live conditions ---------- */
 
