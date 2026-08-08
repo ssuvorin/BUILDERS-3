@@ -1,8 +1,10 @@
 """HeatSafe Voice Copilot — webhook backend for the ElevenLabs agent."""
+import logging
+import time
 from pathlib import Path
 
 import httpx
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -13,6 +15,17 @@ from app.policy import extract_policy
 from app.verdict import assess
 
 app = FastAPI(title="HeatSafe Voice Copilot tools")
+logger = logging.getLogger("heatsafe")
+
+
+@app.middleware("http")
+async def log_tool_timing(request: Request, call_next):
+    started = time.monotonic()
+    response = await call_next(request)
+    elapsed = time.monotonic() - started
+    if request.url.path.startswith("/tools/"):
+        logger.info("%s took %.2fs", request.url.path, elapsed)
+    return response
 
 _CHUNKS = sops.load_chunks()
 _POLICY = extract_policy(_CHUNKS)

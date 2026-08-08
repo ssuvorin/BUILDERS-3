@@ -2,12 +2,20 @@
 
 On any failure this returns available=False — the agent must then say it
 cannot verify conditions, never assume they are fine (eval B3 #15).
+
+Readings are cached briefly (default 120 s) to keep voice latency low;
+the user-flows spec treats a reading as stale only after 10 minutes.
 """
+import os
+import time
 from dataclasses import dataclass
 
 import httpx
 
 from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL
+
+_CACHE_TTL_SECONDS = float(os.getenv("WEATHER_CACHE_TTL", "120"))
+_cache: dict[str, tuple[float, "WeatherReading"]] = {}
 
 _SCHEMA = {
     "type": "object",
@@ -36,6 +44,16 @@ class WeatherReading:
 
 
 async def fetch_weather(location: str) -> WeatherReading:
+    cached = _cache.get(location)
+    if cached and time.monotonic() - cached[0] < _CACHE_TTL_SECONDS:
+        return cached[1]
+    reading = await _fetch_weather_live(location)
+    if reading.available:
+        _cache[location] = (time.monotonic(), reading)
+    return reading
+
+
+async def _fetch_weather_live(location: str) -> WeatherReading:
     if not CONTEXT_DEV_API_KEY:
         return WeatherReading(available=False, error="CONTEXT_DEV_API_KEY is not set")
     url = f"https://wttr.in/{location}?format=j1"
