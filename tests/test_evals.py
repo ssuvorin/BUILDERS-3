@@ -228,8 +228,9 @@ def test_b5_policy_parsed_from_sop_not_hardcoded():
 
 
 def test_health_reports_loaded_docs():
+    expected_docs = len({c.filename for c in CHUNKS})
     body = client.get("/health").json()
-    assert body["ok"] and body["sop_docs"] == 3 and body["policy_loaded"]
+    assert body["ok"] and body["sop_docs"] == expected_docs >= 3 and body["policy_loaded"]
 
 
 # --- voice session lease: one active session per deployment -----------------
