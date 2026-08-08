@@ -25,13 +25,18 @@
     <div class="transcript" id="transcript" hidden></div>
 
     <div class="voice-center" aria-live="polite">
-      <button id="talk-btn" class="orb" type="button" data-state="idle" aria-label="Start conversation">
-        <svg class="orb-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-          <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-          <line x1="12" x2="12" y1="19" y2="22"/>
-        </svg>
-      </button>
+      <div class="orb-stage">
+        <span class="orb-halo" aria-hidden="true"></span>
+        <span class="orb-halo orb-halo-2" aria-hidden="true"></span>
+        <button id="talk-btn" class="orb" type="button" data-state="idle" aria-label="Start conversation">
+          <svg class="orb-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" x2="12" y1="19" y2="22"/>
+          </svg>
+          <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        </button>
+      </div>
       <p class="voice-status" id="voice-status">Tap to talk</p>
     </div>
 

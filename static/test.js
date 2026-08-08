@@ -19,8 +19,11 @@ const STATUS = {
   speaking: "Tap to end, or just talk over it",
 };
 
+const orbStage = document.querySelector(".orb-stage");
+
 function setState(state) {
   talkBtn.dataset.state = state;
+  orbStage.dataset.live = state;
   voiceStatus.textContent = STATUS[state] ?? state;
   talkBtn.setAttribute("aria-label", state === "idle" ? "Start conversation" : "End conversation");
 }
