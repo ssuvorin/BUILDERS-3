@@ -61,7 +61,7 @@ function typeInto(el, text) {
 }
 
 function showThinking() {
-  if (document.getElementById("thinking")) return;
+  if (document.getElementById("thinking") || pendingAgent) return;
   transcript.hidden = false;
   const bubble = document.createElement("div");
   bubble.className = "msg msg-agent";
@@ -76,11 +76,48 @@ function hideThinking() {
   document.getElementById("thinking")?.remove();
 }
 
+/* draft agent bubble: filled by tentative responses before the final text */
+let pendingAgent = null;
+
+function agentBubble() {
+  if (pendingAgent) return pendingAgent;
+  hideThinking();
+  transcript.hidden = false;
+  const bubble = document.createElement("div");
+  bubble.className = "msg msg-agent";
+  const label = document.createElement("span");
+  label.className = "msg-label";
+  label.textContent = "HeatSafe";
+  const body = document.createElement("p");
+  body.className = "msg-text tentative";
+  bubble.append(label, body);
+  transcript.append(bubble);
+  pendingAgent = { bubble, body };
+  return pendingAgent;
+}
+
+function showTentative(text) {
+  const clean = cleanMessage(text);
+  if (!clean) return;
+  const { body } = agentBubble();
+  body.textContent = clean;
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
 function addLine(source, text) {
   const clean = cleanMessage(text);
   if (!clean) return;
   transcript.hidden = false;
   hideThinking();
+  if (source !== "user" && pendingAgent) {
+    // final text replaces the draft in place
+    const { body } = pendingAgent;
+    pendingAgent = null;
+    body.classList.remove("tentative");
+    typeInto(body, clean);
+    transcript.scrollTop = transcript.scrollHeight;
+    return;
+  }
   const bubble = document.createElement("div");
   bubble.className = source === "user" ? "msg msg-user" : "msg msg-agent";
   const label = document.createElement("span");
@@ -92,11 +129,20 @@ function addLine(source, text) {
   transcript.append(bubble);
   if (source === "user") {
     body.textContent = clean;
-    showThinking(); // agent's turn — show it working until its line arrives
+    showThinking(); // agent's turn — show it working until its text arrives
   } else {
     typeInto(body, clean);
   }
   transcript.scrollTop = transcript.scrollHeight;
+}
+
+function extractTentative(event) {
+  if (!event || typeof event !== "object") return null;
+  if (String(event.type ?? "").includes("tentative_agent_response")) {
+    return event.tentative_agent_response_internal_event?.tentative_agent_response
+      ?? event.tentative_agent_response ?? null;
+  }
+  return null;
 }
 
 function sessionOptions(connectionType) {
@@ -110,6 +156,10 @@ function sessionOptions(connectionType) {
       setState(mode === "speaking" ? "speaking" : "listening");
     },
     onMessage: ({ source, message }) => addLine(source, message),
+    onDebug: (event) => {
+      const tentative = extractTentative(event);
+      if (tentative) showTentative(tentative);
+    },
     onError: () => { voiceStatus.textContent = "Connection error — tap to retry"; },
   };
 }

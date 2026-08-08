@@ -75,6 +75,8 @@ body.test-page {
   border-bottom-left-radius: 4px;
 }
 
+.msg-text.tentative { opacity: .65; }
+
 /* thinking indicator: three pulsing dots while the agent works */
 .msg-text.dots { display: flex; gap: 4px; align-items: center; min-height: 21px; }
 .msg-text.dots i {
