@@ -1,10 +1,11 @@
 """Live weather via context.dev web extraction.
 
-On any failure this returns available=False — the agent must then say it
-cannot verify conditions, never assume they are fine (eval B3 #15).
-
-Readings are cached briefly (default 120 s) to keep voice latency low;
-the user-flows spec treats a reading as stale only after 10 minutes.
+Architecture: acquisition is decoupled from the voice path. A background
+refresher (see app.main lifespan) keeps the latest reading warm; the tool
+answers from the in-memory snapshot in milliseconds and reports the
+reading's age. A reading older than the staleness budget (10 minutes,
+per the user-flows spec) is treated as unavailable — the agent must then
+say it cannot verify conditions, never assume they are fine (eval B3 #15).
 """
 import os
 import time
@@ -14,8 +15,9 @@ import httpx
 
 from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL
 
-_CACHE_TTL_SECONDS = float(os.getenv("WEATHER_CACHE_TTL", "120"))
-_cache: dict[str, tuple[float, "WeatherReading"]] = {}
+REFRESH_INTERVAL_SECONDS = float(os.getenv("WEATHER_REFRESH_INTERVAL", "120"))
+_STALE_AFTER_SECONDS = float(os.getenv("WEATHER_STALE_AFTER", "600"))
+_state: dict[str, tuple[float, "WeatherReading"]] = {}
 
 _SCHEMA = {
     "type": "object",
@@ -43,14 +45,33 @@ class WeatherReading:
     error: str | None = None
 
 
-async def fetch_weather(location: str) -> WeatherReading:
-    cached = _cache.get(location)
-    if cached and time.monotonic() - cached[0] < _CACHE_TTL_SECONDS:
-        return cached[1]
+async def refresh(location: str) -> WeatherReading:
+    """Fetch a live reading and store it in the snapshot state."""
     reading = await _fetch_weather_live(location)
     if reading.available:
-        _cache[location] = (time.monotonic(), reading)
+        _state[location] = (time.monotonic(), reading)
     return reading
+
+
+def snapshot(location: str) -> tuple[WeatherReading, float | None]:
+    """Return (reading, age_seconds) from memory without any network I/O.
+
+    No reading yet -> (unavailable, None). Reading past the staleness
+    budget -> (unavailable, age): serving it would break eval 13.
+    """
+    entry = _state.get(location)
+    if entry is None:
+        return WeatherReading(available=False, error="no weather reading yet"), None
+    fetched_at, reading = entry
+    age = time.monotonic() - fetched_at
+    if age > _STALE_AFTER_SECONDS:
+        stale = WeatherReading(
+            available=False,
+            error=f"last reading is {int(age)}s old — past the {int(_STALE_AFTER_SECONDS)}s "
+            "staleness budget",
+        )
+        return stale, age
+    return reading, age
 
 
 async def _fetch_weather_live(location: str) -> WeatherReading:

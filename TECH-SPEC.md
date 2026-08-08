@@ -56,6 +56,13 @@ Source precedence (enforced in the agent prompt, supported by tool design):
 **company data > UAE regional law and official guidance > manufacturer docs
 > general web** — and if general web is the only source, the agent says so aloud.
 
+Latency architecture: data acquisition is decoupled from the voice path. A
+background refresher polls context.dev every 2 minutes and keeps the site
+reading warm in memory; the `check_weather` tool answers from that snapshot
+in milliseconds and reports `reading_age_seconds`. A reading older than the
+10-minute staleness budget (user-flows eval 13) is treated as unavailable —
+the agent then gives the SOP threshold but refuses to compare, and defers.
+
 The system fuses two data groups and always knows which one it is quoting:
 
 - **External / regional (live)**: weather, wind and gusts, environmental

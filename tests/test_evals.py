@@ -166,10 +166,28 @@ def test_b4_16_weather_endpoint_degrades_gracefully(monkeypatch):
         return WeatherReading(available=False, error="source down")
 
     from app import main
-    monkeypatch.setattr(main.weather, "fetch_weather", broken)
+    monkeypatch.setattr(main.weather, "snapshot",
+                        lambda _loc: (WeatherReading(available=False, error="none"), None))
+    monkeypatch.setattr(main.weather, "refresh", broken)
     resp = client.post("/tools/check_weather", json={"activity": "scaffold work"})
     assert resp.status_code == 200
     assert resp.json()["verdict"] == "unknown"
+
+
+def test_eval13_stale_reading_is_never_served():
+    """A reading past the 10-minute staleness budget must come back
+    unavailable, not as a stale figure (user-flows eval 13)."""
+    import time as _time
+
+    from app import weather as w
+    w._state["StaleTown"] = (
+        _time.monotonic() - 3600,
+        WeatherReading(available=True, wind_speed_kmh=5.0, temp_c=30.0),
+    )
+    reading, age = w.snapshot("StaleTown")
+    assert not reading.available
+    assert age is not None and age > 600
+    del w._state["StaleTown"]
 
 
 def test_b5_policy_parsed_from_sop_not_hardcoded():

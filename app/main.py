@@ -1,6 +1,9 @@
 """HeatSafe Voice Copilot — webhook backend for the ElevenLabs agent."""
+import asyncio
+import contextlib
 import logging
 import time
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import httpx
@@ -14,8 +17,31 @@ from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL, ROOT_DIR, SITE
 from app.policy import extract_policy
 from app.verdict import assess
 
-app = FastAPI(title="HeatSafe Voice Copilot tools")
 logger = logging.getLogger("heatsafe")
+
+
+async def _weather_refresher() -> None:
+    """Keep the site reading warm so the voice path never waits on context.dev."""
+    while True:
+        try:
+            reading = await weather.refresh(SITE_LOCATION)
+            if not reading.available:
+                logger.warning("weather refresh failed: %s", reading.error)
+        except Exception:
+            logger.exception("weather refresher crashed; retrying next cycle")
+        await asyncio.sleep(weather.REFRESH_INTERVAL_SECONDS)
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    task = asyncio.create_task(_weather_refresher())
+    yield
+    task.cancel()
+    with contextlib.suppress(asyncio.CancelledError):
+        await task
+
+
+app = FastAPI(title="HeatSafe Voice Copilot tools", lifespan=lifespan)
 
 
 @app.middleware("http")
@@ -68,9 +94,17 @@ def search_sops(req: SearchRequest) -> dict:
 
 @app.post("/tools/check_weather")
 async def check_weather(req: WeatherRequest) -> dict:
-    """Live weather vs the threshold read from the company SOP."""
-    reading = await weather.fetch_weather(req.location or SITE_LOCATION)
-    return assess(reading, req.activity, _POLICY)
+    """Site conditions vs the policy bands. Answers from the warm snapshot;
+    only blocks on a live fetch when no reading exists yet (first boot)."""
+    location = req.location or SITE_LOCATION
+    reading, age = weather.snapshot(location)
+    if not reading.available and age is None:
+        reading = await weather.refresh(location)
+        age = 0.0 if reading.available else None
+    result = assess(reading, req.activity, _POLICY)
+    if age is not None:
+        result["reading_age_seconds"] = int(age)
+    return result
 
 
 @app.post("/tools/web_lookup")
