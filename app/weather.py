@@ -6,12 +6,20 @@ answers from the in-memory snapshot in milliseconds and reports the
 reading's age. A reading older than the staleness budget (10 minutes,
 per the user-flows spec) is treated as unavailable — the agent must then
 say it cannot verify conditions, never assume they are fine (eval B3 #15).
+
+Sources (docs/FINDINGS.md, Finding 1): Open-Meteo is primary — it publishes
+gusts, which the policy makes a threshold input, while wttr.in does not.
+wttr.in stays as fallback (it accepts place names, so it also covers ad-hoc
+locations that have no configured coordinates). Every reading names the
+source it came from, and both are fetched through context.dev.
 """
 import os
 import time
 from dataclasses import dataclass
+from urllib.parse import quote
 
 from app import context_dev
+from app.config import SITE_LAT, SITE_LOCATION, SITE_LON
 
 REFRESH_INTERVAL_SECONDS = float(os.getenv("WEATHER_REFRESH_INTERVAL", "120"))
 _STALE_AFTER_SECONDS = float(os.getenv("WEATHER_STALE_AFTER", "600"))
@@ -39,7 +47,7 @@ class WeatherReading:
     wind_gust_kmh: float | None = None
     temp_c: float | None = None
     description: str | None = None
-    source: str = "context.dev live extraction of wttr.in"
+    source: str = "context.dev live extraction"
     error: str | None = None
 
 
@@ -72,22 +80,44 @@ def snapshot(location: str) -> tuple[WeatherReading, float | None]:
     return reading, age
 
 
+def _sources(location: str) -> list[tuple[str, str]]:
+    """(name, url) per source, in precedence order. Open-Meteo works on the
+    configured site's coordinates; wttr.in accepts any place name."""
+    sources = []
+    if location == SITE_LOCATION:
+        open_meteo_url = (
+            f"https://api.open-meteo.com/v1/forecast?latitude={SITE_LAT}&longitude={SITE_LON}"
+            "&current=temperature_2m,wind_speed_10m,wind_gusts_10m,weather_code"
+            "&wind_speed_unit=kmh"
+        )
+        sources.append(("Open-Meteo", open_meteo_url))
+    sources.append(("wttr.in", f"https://wttr.in/{quote(location)}?format=j1"))
+    return sources
+
+
+def _num(data: dict, key: str) -> float | None:
+    return float(data[key]) if data.get(key) is not None else None
+
+
 async def _fetch_weather_live(location: str) -> WeatherReading:
-    url = f"https://wttr.in/{location}?format=j1"
-    try:
-        data = await context_dev.post("/web/extract", {"url": url, "schema": _SCHEMA})
-    except context_dev.ContextDevError as exc:
-        return WeatherReading(available=False, error=f"weather source unavailable: {exc}")
-    if data.get("wind_speed_kmh") is None:
-        return WeatherReading(available=False, error="weather source returned no wind reading")
-
-    def num(key: str) -> float | None:
-        return float(data[key]) if data.get(key) is not None else None
-
+    errors = []
+    for name, url in _sources(location):
+        try:
+            data = await context_dev.post("/web/extract", {"url": url, "schema": _SCHEMA})
+        except context_dev.ContextDevError as exc:
+            errors.append(f"{name}: {exc}")
+            continue
+        if data.get("wind_speed_kmh") is None:
+            errors.append(f"{name}: no wind reading")
+            continue
+        return WeatherReading(
+            available=True,
+            wind_speed_kmh=float(data["wind_speed_kmh"]),
+            wind_gust_kmh=_num(data, "wind_gust_kmh"),
+            temp_c=_num(data, "temp_c"),
+            description=data.get("description"),
+            source=f"context.dev live extraction of {name}",
+        )
     return WeatherReading(
-        available=True,
-        wind_speed_kmh=float(data["wind_speed_kmh"]),
-        wind_gust_kmh=num("wind_gust_kmh"),
-        temp_c=num("temp_c"),
-        description=data.get("description"),
+        available=False, error="weather sources unavailable — " + "; ".join(errors)
     )

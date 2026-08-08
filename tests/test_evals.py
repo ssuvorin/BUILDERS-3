@@ -199,6 +199,55 @@ def test_eval13_stale_reading_is_never_served():
     del w._state["StaleTown"]
 
 
+def test_weather_prefers_open_meteo_and_falls_back_to_wttr(monkeypatch):
+    """Finding 1 (docs/FINDINGS.md): Open-Meteo is primary because it
+    publishes gusts; wttr.in is the fallback; the reading names its source."""
+    import asyncio
+
+    from app import weather as w
+    from app.config import SITE_LOCATION
+
+    calls = []
+
+    async def fake_post(_path, payload):
+        calls.append(payload["url"])
+        if "open-meteo" in payload["url"]:
+            return {"wind_speed_kmh": 10.0, "wind_gust_kmh": 20.0, "temp_c": 30.0}
+        return {"wind_speed_kmh": 12.0, "temp_c": 31.0}
+
+    monkeypatch.setattr(w.context_dev, "post", fake_post)
+    reading = asyncio.run(w._fetch_weather_live(SITE_LOCATION))
+    assert "open-meteo" in calls[0] and len(calls) == 1
+    assert reading.wind_gust_kmh == 20.0 and "Open-Meteo" in reading.source
+
+    async def broken_primary(_path, payload):
+        calls.append(payload["url"])
+        if "open-meteo" in payload["url"]:
+            raise w.context_dev.ContextDevError("primary down")
+        return {"wind_speed_kmh": 12.0, "temp_c": 31.0}
+
+    calls.clear()
+    monkeypatch.setattr(w.context_dev, "post", broken_primary)
+    reading = asyncio.run(w._fetch_weather_live(SITE_LOCATION))
+    assert len(calls) == 2 and "wttr.in" in calls[1]
+    assert reading.available and "wttr.in" in reading.source
+
+
+def test_weather_ad_hoc_location_goes_straight_to_wttr(monkeypatch):
+    """Open-Meteo needs coordinates — only the configured site has them."""
+    import asyncio
+
+    from app import weather as w
+
+    async def fake_post(_path, payload):
+        assert "wttr.in" in payload["url"]
+        return {"wind_speed_kmh": 8.0, "temp_c": 28.0}
+
+    monkeypatch.setattr(w.context_dev, "post", fake_post)
+    reading = asyncio.run(w._fetch_weather_live("Abu Dhabi"))
+    assert reading.available and "wttr.in" in reading.source
+
+
 def test_stale_reading_triggers_a_live_refetch(monkeypatch):
     """A stale snapshot must not be a dead end: the endpoint re-fetches live
     instead of answering 'unknown' forever."""
