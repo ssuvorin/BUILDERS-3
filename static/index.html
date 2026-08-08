@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Meridian Site Assistant</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #1a1f16; color: #f0ede4;
+           display: flex; flex-direction: column; align-items: center; gap: 1rem;
+           min-height: 100vh; margin: 0; padding: 2rem; box-sizing: border-box; }
+    h1 { font-size: 1.4rem; margin: 0; }
+    p  { color: #b9b4a6; max-width: 34rem; text-align: center; margin: 0; }
+    .hint { font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <h1>Meridian Site Assistant</h1>
+  <p>Hands-free help on site: SOPs, safety points, and live weather guidance.
+     Press the microphone and ask — e.g. “what's the wind limit for scaffold work?”</p>
+  <p class="hint">The assistant advises and names its sources. Stop/go decisions
+     always belong to your supervisor.</p>
+
+  <!-- ElevenLabs conversational agent widget: set your agent id below -->
+  <elevenlabs-convai agent-id="AGENT_ID_HERE"></elevenlabs-convai>
+  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+</body>
+</html>
