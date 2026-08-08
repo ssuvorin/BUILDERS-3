@@ -35,23 +35,37 @@ function addLine(source, text) {
   transcript.scrollTop = transcript.scrollHeight;
 }
 
+function sessionOptions(connectionType) {
+  return {
+    agentId: AGENT_ID,
+    connectionType,
+    onConnect: () => setState("listening"),
+    onDisconnect: () => { conversation = null; setState("idle"); },
+    onModeChange: ({ mode }) => setState(mode === "speaking" ? "speaking" : "listening"),
+    onMessage: ({ source, message }) => addLine(source, message),
+    onError: () => { voiceStatus.textContent = "Connection error — tap to retry"; },
+  };
+}
+
 async function start() {
   setState("connecting");
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
-    conversation = await Conversation.startSession({
-      agentId: AGENT_ID,
-      connectionType: "webrtc",
-      onConnect: () => setState("listening"),
-      onDisconnect: () => { conversation = null; setState("idle"); },
-      onModeChange: ({ mode }) => setState(mode === "speaking" ? "speaking" : "listening"),
-      onMessage: ({ source, message }) => addLine(source, message),
-      onError: () => { voiceStatus.textContent = "Connection error — tap to retry"; },
-    });
   } catch {
-    conversation = null;
     setState("idle");
-    voiceStatus.textContent = "Microphone blocked or connection failed — tap to retry";
+    voiceStatus.textContent = "Microphone blocked — allow mic access and tap again";
+    return;
+  }
+  try {
+    conversation = await Conversation.startSession(sessionOptions("webrtc"));
+  } catch {
+    try {
+      conversation = await Conversation.startSession(sessionOptions("websocket"));
+    } catch {
+      conversation = null;
+      setState("idle");
+      voiceStatus.textContent = "Connection failed — tap to retry";
+    }
   }
 }
 

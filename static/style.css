@@ -67,6 +67,8 @@
 
 * { box-sizing: border-box; border-color: var(--border); }
 
+button, a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+
 body {
   margin: 0;
   background: var(--bg);
@@ -109,9 +111,9 @@ main { max-width: var(--content-max-w); margin: 0 auto; padding: 0 1.5rem 4rem; 
 }
 
 /* ---------- hero ---------- */
-.hero { padding: 3.5rem 0 .5rem; max-width: 46rem; }
+.hero { padding: clamp(2rem, 6vw, 3.5rem) 0 .5rem; max-width: 46rem; }
 .hero h1 {
-  font-size: 32px; line-height: 40px; letter-spacing: -0.01em;
+  font-size: clamp(24px, 5.5vw, 32px); line-height: 1.25; letter-spacing: -0.01em;
   font-weight: 600; margin: 0 0 .75rem;
 }
 .hero h1 em { font-style: normal; color: var(--brand); }
@@ -150,7 +152,7 @@ main { max-width: var(--content-max-w); margin: 0 auto; padding: 0 1.5rem 4rem; 
 /* ---------- cards ---------- */
 .grid {
   display: grid; gap: 1rem; margin-top: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
 }
 .card {
   background: var(--bg-elevated);
@@ -193,7 +195,7 @@ button:focus-visible { outline: none; box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.
 button.ghost {
   background: transparent; color: var(--fg);
   border: 1px solid var(--border-strong);
-  padding: 5px 12px; font-size: 13px;
+  padding: 5px 12px; font-size: 13px; min-height: 36px;
 }
 button.ghost:hover { background: var(--bg-muted); }
 button.solid {
@@ -252,11 +254,16 @@ button.solid:hover { background: var(--brand-hover); }
   align-self: center; color: var(--fg-subtle);
   font-size: 20px; font-weight: 600; user-select: none;
 }
+@media (max-width: 640px) {
+  .flow { flex-direction: column; }
+  .flow-step { flex-basis: auto; }
+  .flow-arrow { transform: rotate(90deg); align-self: center; line-height: 1; }
+}
 .how-note { color: var(--fg-muted); font-size: 13px; line-height: 18px; max-width: 50rem; }
 .how-note em { color: var(--fg); font-style: italic; }
 
 /* ---------- value trio ---------- */
-.v3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.v3 { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); }
 .v3-card {
   display: grid; gap: 2px; align-content: start;
   border: 1px solid var(--border); border-radius: var(--radius-lg);
@@ -269,7 +276,7 @@ button.solid:hover { background: var(--brand-hover); }
 /* ---------- verticals ---------- */
 .v-grid {
   display: grid; gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
   margin-bottom: 12px;
 }
 .v-card {
@@ -287,7 +294,10 @@ button.solid:hover { background: var(--brand-hover); }
 }
 .v-card.live em { color: var(--brand); }
 
-footer { border-top: 1px solid var(--border); margin-top: 3.5rem; padding: 24px; text-align: center; }
+footer {
+  border-top: 1px solid var(--border); margin-top: 3.5rem; text-align: center;
+  padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+}
 footer p { color: var(--fg-subtle); font-size: 12px; line-height: 16px; max-width: 46rem; margin: 0 auto; }
 
 @media (prefers-reduced-motion: reduce) {
