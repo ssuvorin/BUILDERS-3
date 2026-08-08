@@ -1,6 +1,4 @@
-/* HeatSafe demo page: live conditions panel + ElevenLabs widget loader. */
-
-const DEFAULT_AGENT_ID = "agent_5901kzg1ns03eyv8n4em0y9m97bn"; // override via ?agent=
+/* HeatSafe promo page: live conditions panel. Voice testing lives at /test. */
 
 /* ---------- live conditions ---------- */
 
@@ -64,36 +62,3 @@ function setText(id, value) {
 
 document.getElementById("refresh-btn").addEventListener("click", checkConditions);
 checkConditions();
-
-/* ---------- ElevenLabs widget ---------- */
-
-function loadWidget(agentId) {
-  document.querySelector("elevenlabs-convai")?.remove();
-  const el = document.createElement("elevenlabs-convai");
-  el.setAttribute("agent-id", agentId);
-  document.body.append(el);
-  if (!document.getElementById("convai-script")) {
-    const s = document.createElement("script");
-    s.id = "convai-script";
-    s.src = "https://unpkg.com/@elevenlabs/convai-widget-embed";
-    s.async = true;
-    document.body.append(s);
-  }
-}
-
-const params = new URLSearchParams(location.search);
-const agentId = params.get("agent") || localStorage.getItem("heatsafe-agent-id") || DEFAULT_AGENT_ID;
-
-if (agentId && agentId !== "AGENT_ID_HERE") {
-  loadWidget(agentId);
-} else {
-  const setup = document.getElementById("agent-setup");
-  setup.hidden = false;
-  document.getElementById("agent-save").addEventListener("click", () => {
-    const value = document.getElementById("agent-id-input").value.trim();
-    if (!value) return;
-    localStorage.setItem("heatsafe-agent-id", value);
-    setup.hidden = true;
-    loadWidget(value);
-  });
-}

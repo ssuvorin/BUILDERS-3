@@ -90,3 +90,8 @@ app.mount("/static", StaticFiles(directory=Path(ROOT_DIR) / "static"), name="sta
 @app.get("/")
 def index() -> FileResponse:
     return FileResponse(Path(ROOT_DIR) / "static" / "index.html")
+
+
+@app.get("/test")
+def test_console() -> FileResponse:
+    return FileResponse(Path(ROOT_DIR) / "static" / "test.html")
