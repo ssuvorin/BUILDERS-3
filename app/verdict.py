@@ -25,12 +25,23 @@ def assess(
     now: datetime | None = None,
 ) -> dict:
     if not reading.available:
-        return {
+        result = {
             "verdict": "unknown",
             "reason": "Cannot verify current conditions — the weather source is unavailable. "
             "Do NOT assume conditions are fine. Check with the site supervisor.",
             "error": reading.error,
         }
+        if policy is not None:
+            result["policy_thresholds_still_valid"] = {
+                "note": "The thresholds come from the SOP and are always available — give "
+                "the worker the limit, withhold only the comparison with live conditions.",
+                "restricted_from_mph": policy.restricted_wind_mph,
+                "suspended_from_mph": policy.suspended_wind_mph,
+                "sheet_stop_mph": policy.sheet_stop_mph,
+                "heat_suspended_c": policy.heat_suspended_c,
+                "source": policy.source_doc,
+            }
+        return result
     if policy is None:
         return {"verdict": "unknown", "reason": "No weather policy found in the loaded SOPs."}
 

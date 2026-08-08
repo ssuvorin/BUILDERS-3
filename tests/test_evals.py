@@ -139,6 +139,26 @@ def test_b3_15_weather_unavailable_never_assumes_fine():
     assert "not assume" in result["reason"].lower()
 
 
+def test_b3_15b_degraded_answer_still_carries_the_threshold():
+    """Cross-cutting flow 3.3: the limit comes from the SOP and is always
+    available — only the comparison with live conditions is withheld."""
+    reading = WeatherReading(available=False, error="boom")
+    result = assess(reading, "working on scaffolding", POLICY, now=WINTER_NOON)
+    fallback = result["policy_thresholds_still_valid"]
+    assert fallback["restricted_from_mph"] == 17.0
+    assert "MER-SOP-021" in fallback["source"]
+
+
+def test_flow_e_specific_rule_beats_general_rule():
+    """Sail rule: 16 mph at ground level passes the height band but formwork
+    panels stop at 15 mph at any height — most restrictive rule wins."""
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(16), temp_c=30.0)
+    general = assess(reading, "external work at ground level", POLICY, now=WINTER_NOON)
+    assert general["verdict"] == "go"
+    panels = assess(reading, "moving formwork panels on the deck", POLICY, now=WINTER_NOON)
+    assert panels["verdict"] == "no-go"
+
+
 # --- B4/B5: robustness & codebase ------------------------------------------
 
 def test_b4_16_weather_endpoint_degrades_gracefully(monkeypatch):
