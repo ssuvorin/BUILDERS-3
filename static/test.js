@@ -11,6 +11,7 @@ const talkBtn = document.getElementById("talk-btn");
 const voiceStatus = document.getElementById("voice-status");
 const transcript = document.getElementById("transcript");
 let conversation = null;
+let starting = false;
 
 const STATUS = {
   idle: "Tap to talk",
@@ -50,10 +51,13 @@ function sessionOptions(connectionType) {
 }
 
 async function start() {
+  if (starting || conversation) return; // never allow a second parallel session
+  starting = true;
   setState("connecting");
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch {
+    starting = false;
     setState("idle");
     voiceStatus.textContent = "Microphone blocked — allow mic access and tap again";
     return;
@@ -68,7 +72,11 @@ async function start() {
       setState("idle");
       voiceStatus.textContent = "Connection failed — tap to retry";
     }
+  } finally {
+    starting = false;
+    if (!conversation && talkBtn.dataset.state === "connecting") setState("idle");
   }
+  if (conversation) channel.postMessage("session-started");
 }
 
 async function stop() {
@@ -78,7 +86,16 @@ async function stop() {
   await c?.endSession();
 }
 
-talkBtn.addEventListener("click", () => (conversation ? stop() : start()));
+talkBtn.addEventListener("click", () => {
+  if (starting) return; // ignore taps while a session is being established
+  conversation ? stop() : start();
+});
+
+/* one session per browser: if another tab starts a session, end ours */
+const channel = new BroadcastChannel("heatsafe-voice");
+channel.onmessage = (e) => {
+  if (e.data === "session-started" && (conversation || starting)) stop();
+};
 
 /* ---------- conditions strip ---------- */
 
