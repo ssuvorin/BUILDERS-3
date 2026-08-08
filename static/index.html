@@ -3,26 +3,112 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>HeatSafe Voice Copilot</title>
-  <style>
-    body { font-family: system-ui, sans-serif; background: #1a1f16; color: #f0ede4;
-           display: flex; flex-direction: column; align-items: center; gap: 1rem;
-           min-height: 100vh; margin: 0; padding: 2rem; box-sizing: border-box; }
-    h1 { font-size: 1.4rem; margin: 0; }
-    p  { color: #b9b4a6; max-width: 34rem; text-align: center; margin: 0; }
-    .hint { font-size: .85rem; }
-  </style>
+  <meta name="color-scheme" content="dark" />
+  <title>HeatSafe Voice Copilot — Meridian Construction</title>
+  <meta name="description" content="Voice-first operational safety copilot for frontline teams. Live demo: Meridian Construction LLC, Dubai Marina." />
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <h1>HeatSafe Voice Copilot</h1>
-  <p>Voice-first safety copilot for Meridian Construction LLC. Hands-free help
-     on site: company procedures, safety points, live wind and heat guidance.
-     Press the microphone and ask — e.g. “can we work on the scaffold this morning?”</p>
-  <p class="hint">HeatSafe retrieves, explains and cites — it never guesses.
-     Stop/go decisions always belong to your supervisor.</p>
+  <header class="top">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">HeatSafe</span>
+      <span class="brand-sub">Voice Copilot</span>
+    </div>
+    <span class="deploy-chip">Deployment: Meridian Construction LLC · Harbour Point Tower, Dubai Marina</span>
+  </header>
 
-  <!-- ElevenLabs conversational agent widget: set your agent id below -->
-  <elevenlabs-convai agent-id="AGENT_ID_HERE"></elevenlabs-convai>
-  <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+  <main>
+    <section class="hero">
+      <h1>The right procedure, the company rule and the live site conditions —<br />
+        <em>by voice, without stopping work.</em></h1>
+      <p class="usp">
+        Workers need fast access to the right safety procedures, company rules and live
+        site conditions without stopping work to search through documents. HeatSafe
+        answers by voice at the point of work — and always names its source.
+      </p>
+      <p class="usp-market">
+        First market: <strong>UAE construction</strong> — extreme weather, strict HSE
+        requirements and large frontline workforces make verified, voice-first guidance
+        essential at the point of work.
+      </p>
+      <div class="creed" role="note">
+        HeatSafe <b>retrieves</b>. HeatSafe <b>explains</b>. HeatSafe <b>cites</b>.
+        HeatSafe <b>never guesses</b>. Stop/go decisions always belong to the supervisor.
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card conditions" id="conditions-card" aria-live="polite">
+        <div class="card-head">
+          <h2>Live site conditions</h2>
+          <button id="refresh-btn" class="ghost" type="button">Re-check</button>
+        </div>
+        <div class="verdict-row">
+          <span class="badge" id="verdict-badge" data-state="loading">CHECKING…</span>
+          <span class="verdict-note" id="verdict-note">Fetching live weather via context.dev…</span>
+        </div>
+        <dl class="readings" id="readings" hidden>
+          <div><dt>Wind sustained</dt><dd id="r-wind">—</dd></div>
+          <div><dt>Gusts</dt><dd id="r-gust">—</dd></div>
+          <div><dt>Temperature</dt><dd id="r-temp">—</dd></div>
+        </dl>
+        <ul class="reasons" id="reasons"></ul>
+        <p class="source-line" id="policy-source"></p>
+      </article>
+
+      <article class="card talk">
+        <h2>Talk to HeatSafe</h2>
+        <p>Push to talk, hands free, interruptible. Try one of these:</p>
+        <ul class="ask-list">
+          <li>“What do I need to check before I use this scaffold?”</li>
+          <li>“What’s the wind limit for working on the scaffold?”</li>
+          <li>“What should we be working on this morning?”</li>
+          <li>“Can we push on outside and finish this off?”</li>
+          <li>“How do I set up the MEWP for the east elevation?” <span class="tag-refuse">it will refuse</span></li>
+          <li>“Is it safe for me to go up right now?” <span class="tag-defer">it will defer</span></li>
+        </ul>
+        <div id="agent-setup" hidden>
+          <label for="agent-id-input">ElevenLabs agent ID (testing)</label>
+          <div class="agent-row">
+            <input id="agent-id-input" type="text" placeholder="agent_…" autocomplete="off" spellcheck="false" />
+            <button id="agent-save" class="solid" type="button">Load agent</button>
+          </div>
+          <p class="hint">Paste the agent ID from elevenlabs.io/app/agents — or open this page with <code>?agent=agent_…</code></p>
+        </div>
+      </article>
+    </section>
+
+    <section class="how">
+      <h2>How it answers</h2>
+      <ol class="hierarchy">
+        <li><b>Company data</b><span>SOPs, policies, checklists — MER-SOP-014, MER-SOP-021, MER-SC-003</span></li>
+        <li><b>Regional law &amp; official guidance</b><span>UAE federal and emirate requirements, HSE publications — live</span></li>
+        <li><b>Manufacturer documentation</b><span>equipment limits and bulletins — live</span></li>
+        <li><b>General web</b><span>only if nothing stronger exists — and it says so out loud</span></li>
+      </ol>
+      <p class="how-note">When sources disagree, the higher source wins. Company thresholds are parsed
+        from the client’s own documents — never hardcoded. No source → “I don’t know. Ask your supervisor.”</p>
+    </section>
+
+    <section class="verticals">
+      <h2>One engine, many frontlines</h2>
+      <div class="v-grid">
+        <div class="v-card live"><b>Construction</b><span>wind bands · heat bands · midday break</span><em>live demo</em></div>
+        <div class="v-card"><b>Oil &amp; gas</b><span>permits · H2S wind dispersion · hot works</span><em>config example</em></div>
+        <div class="v-card"><b>Utilities</b><span>switching · lightning risk · pole-top wind</span><em>config example</em></div>
+        <div class="v-card"><b>Ports &amp; logistics</b><span>crane wind limits · fog · tide windows</span><em>config example</em></div>
+      </div>
+      <p class="how-note">A new client is a config block and a document pack — the rules, the refusal
+        behaviour and the eval discipline never change.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p>Hackathon demo. Meridian Construction LLC and all its documents are fictional —
+      not operational safety advice. Built with ElevenLabs Agents, context.dev and Devin.</p>
+  </footer>
+
+  <script src="/static/app.js" defer></script>
 </body>
 </html>

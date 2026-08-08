@@ -4,6 +4,7 @@ from pathlib import Path
 import httpx
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from app import sops, weather
@@ -81,6 +82,9 @@ async def web_lookup(req: LookupRequest) -> dict:
         "guidance": "External source — outranked by company SOPs. Name it and flag "
         "it is not company policy.",
     }
+
+
+app.mount("/static", StaticFiles(directory=Path(ROOT_DIR) / "static"), name="static")
 
 
 @app.get("/")
