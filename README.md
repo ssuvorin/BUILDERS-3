@@ -78,3 +78,9 @@ Built with [spec-kit](https://github.com/github/spec-kit):
 
 Offline mode, user accounts, real SOP ingestion pipeline, persistence,
 multilingual voice — out of scope for the demo, listed in the spec.
+
+## Deployment (demo)
+
+Deployed at `https://13.143.65.45.sslip.io` — FastAPI behind Caddy
+(automatic Let's Encrypt TLS via sslip.io), managed by systemd
+(`heatsafe.service`); secrets in `/etc/heatsafe.env` on the VPS.
