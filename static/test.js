@@ -29,9 +29,16 @@ function setState(state) {
   talkBtn.setAttribute("aria-label", state === "idle" ? "Start conversation" : "End conversation");
 }
 
+/* tool-call syntax leaking from the model's raw tokens, e.g.
+   [search_sops("...")] or web_lookup(url="...") — never show it */
+const TOOL_CALL_RE = /\[?\s*(?:search_sops|check_weather|web_search|web_lookup|language_detection|end_call)\s*\(|^\s*\[?\s*[a-z_]+\s*\([^)]*\)\s*\]?\s*$/i;
+
 function cleanMessage(text) {
-  return (text ?? "")
+  const lines = (text ?? "")
     .replace(/\[[a-z][a-z\s,'!?-]{0,40}\]/gi, "") // ElevenLabs v3 audio tags: [confident], [whispers]...
+    .split("\n")
+    .filter((line) => !TOOL_CALL_RE.test(line));
+  return lines.join("\n")
     .replace(/[ \t]{2,}/g, " ")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
