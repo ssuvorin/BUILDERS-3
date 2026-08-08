@@ -53,13 +53,16 @@ def test_b1_4_wind_under_threshold_is_go():
 # --- B2: it should NOT answer — the differentiator ------------------------
 
 def test_b2_6_mewp_procedure_not_covered_returns_nothing():
-    """Deliberate gap from the demo-data README: MEWP setup is not covered."""
+    """Deliberate gap from the demo-data README: MEWP setup is not covered.
+    Empty results point the agent at web_lookup, not straight at a refusal."""
     resp = client.post(
         "/tools/search_sops", json={"query": "set up the MEWP for the east elevation"}
     )
     body = resp.json()
     assert body["results"] == []
-    assert "refuse" in body["guidance"] or "don't know" in body["guidance"]
+    assert "web_lookup" in body["guidance"]
+    assert "not company policy" in body["guidance"]
+    assert "Do not invent" in body["guidance"]
 
 
 def test_b2_7_sop_overrides_general_web_guidance():
@@ -266,10 +269,14 @@ def test_voice_lease_expires_when_holder_goes_silent(monkeypatch):
     import time as _time
 
     impl = _fresh_memory_broker(monkeypatch, max_sessions=1)
-    lease_id = asyncio.get_event_loop().run_until_complete(impl.acquire())
-    assert lease_id is not None
-    assert asyncio.get_event_loop().run_until_complete(impl.acquire()) is None
-    # simulate a crashed tab: TTL passes with no heartbeat
-    impl._leases[lease_id] = _time.time() - 1
-    assert not asyncio.get_event_loop().run_until_complete(impl.heartbeat(lease_id))
-    assert asyncio.get_event_loop().run_until_complete(impl.acquire()) is not None
+
+    async def scenario():
+        lease_id = await impl.acquire()
+        assert lease_id is not None
+        assert await impl.acquire() is None
+        # simulate a crashed tab: TTL passes with no heartbeat
+        impl._leases[lease_id] = _time.time() - 1
+        assert not await impl.heartbeat(lease_id)
+        assert await impl.acquire() is not None
+
+    asyncio.run(scenario())

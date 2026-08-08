@@ -8,7 +8,7 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 ## 1. search_sops
 
 - **Name**: `search_sops`
-- **Description**: Search Meridian Construction LLC's company data: SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — refuse and defer, do not invent.
+- **Description**: Search Meridian Construction LLC's company data: SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.
 - **Method**: POST
 - **URL**: `https://13.143.65.45.sslip.io/tools/search_sops`
 - **Body parameters**:
@@ -42,7 +42,7 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 {
   "type": "webhook",
   "name": "search_sops",
-  "description": "Search the client company's data (Meridian Construction LLC): SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — refuse and defer, do not invent.",
+  "description": "Search the client company's data (Meridian Construction LLC): SOPs, safety policies, checklists, site rules. Use FIRST for every work or safety question. Empty results mean no company document covers it — say so, then try official guidance via web_lookup before any refusal. Do not invent.",
   "api_schema": {
     "url": "https://13.143.65.45.sslip.io/tools/search_sops",
     "method": "POST",
@@ -142,7 +142,7 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
 {
   "type": "webhook",
   "name": "web_lookup",
-  "description": "Fetch an official guidance page (UAE regulations, official HSE publications, manufacturer documentation) as text when the client company's documents do not cover the question. Results rank BELOW company data — flag them as \"not company policy\".",
+  "description": "Fetch an official guidance page (UAE regulations, official HSE publications, manufacturer documentation) as text when the client company's documents do not cover the question. Use it whenever search_sops returns empty, before refusing. Results rank BELOW company data — flag them as \"not company policy\".",
   "api_schema": {
     "url": "https://13.143.65.45.sslip.io/tools/web_lookup",
     "method": "POST",

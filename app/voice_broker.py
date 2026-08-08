@@ -10,10 +10,12 @@ devices, so the backend owns the truth about who may talk to the agent.
   shared across processes/replicas). When Redis is unreachable the broker
   degrades to a single-process in-memory store so the demo never dies.
 """
+import asyncio
 import logging
 import os
 import secrets
 import time
+from urllib.parse import urlparse
 
 import redis.asyncio as aioredis
 from redis.exceptions import RedisError
@@ -117,22 +119,29 @@ class Broker:
 
     def __init__(self):
         self._impl: RedisBroker | InMemoryBroker | None = None
+        self._init_lock = asyncio.Lock()
 
     async def _backend(self) -> RedisBroker | InMemoryBroker:
         if self._impl is None:
-            try:
-                client = aioredis.from_url(
-                    REDIS_URL, decode_responses=True, socket_connect_timeout=1,
-                    socket_timeout=1,
-                )
-                await client.ping()
-                self._impl = RedisBroker(client)
-                logger.info("voice broker: redis backend (%s), max_sessions=%s",
-                            REDIS_URL, MAX_SESSIONS)
-            except (RedisError, OSError) as exc:
-                self._impl = InMemoryBroker()
-                logger.warning("voice broker: redis unavailable (%s) — in-memory fallback", exc)
+            async with self._init_lock:
+                if self._impl is None:
+                    self._impl = await self._connect()
         return self._impl
+
+    async def _connect(self) -> RedisBroker | InMemoryBroker:
+        host = urlparse(REDIS_URL).hostname or "?"
+        try:
+            client = aioredis.from_url(
+                REDIS_URL, decode_responses=True, socket_connect_timeout=1,
+                socket_timeout=1,
+            )
+            await client.ping()
+            logger.info("voice broker: redis backend (%s), max_sessions=%s", host, MAX_SESSIONS)
+            return RedisBroker(client)
+        except (RedisError, OSError) as exc:
+            logger.warning("voice broker: redis unavailable at %s (%s) — in-memory fallback",
+                           host, type(exc).__name__)
+            return InMemoryBroker()
 
     async def acquire(self) -> str | None:
         return await (await self._backend()).acquire()

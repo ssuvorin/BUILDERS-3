@@ -56,7 +56,8 @@ let lease = null;          // { id, timer }
 
 async function acquireLease() {
   const resp = await fetch("/api/voice-lease", { method: "POST" });
-  if (resp.status === 409) return null;
+  if (resp.status === 409) return null; // all slots busy
+  if (!resp.ok) throw new Error(`lease acquire failed: HTTP ${resp.status}`);
   const data = await resp.json();
   const interval = (data.heartbeat_seconds ?? 15) * 1000;
   const timer = setInterval(async () => {
@@ -66,7 +67,7 @@ async function acquireLease() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ lease_id: data.lease_id }),
       });
-      if (!hb.ok) stop("Session taken over elsewhere");
+      if (hb.status === 410) stop("Session expired — tap to start again");
     } catch { /* transient network blip; lease TTL is the arbiter */ }
   }, interval);
   return { id: data.lease_id, timer };
@@ -85,15 +86,19 @@ async function start() {
   if (starting || conversation) return; // one session per tab, ever
   starting = true;
   setState("connecting");
+  let busy = false;
   try {
     lease = await acquireLease();
+    busy = lease === null;
   } catch {
     lease = null;
   }
   if (!lease) {
     starting = false;
     setState("idle");
-    voiceStatus.textContent = "All session slots are busy — try again in a moment";
+    voiceStatus.textContent = busy
+      ? "All session slots are busy — try again in a moment"
+      : "Could not reach the server — tap to retry";
     return;
   }
   try {
