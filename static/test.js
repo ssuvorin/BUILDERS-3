@@ -29,8 +29,11 @@ function setState(state) {
   talkBtn.setAttribute("aria-label", state === "idle" ? "Start conversation" : "End conversation");
 }
 
-/* tool-call syntax leaking from the model's raw tokens, e.g.
-   [search_sops("...")] or web_lookup(url="...") — never show it */
+/* Display safety: tentative drafts are the model's RAW token stream
+   (internal events), not curated display text. Anything that isn't
+   plain speech — tool-call syntax, bracketed directives — is dropped
+   before rendering. The prompt also forbids speaking tool syntax; this
+   guard covers models that emit it as first tokens anyway. */
 const TOOL_CALL_RE = /\[?\s*(?:search_sops|check_weather|web_search|web_lookup|language_detection|end_call)\s*\(|^\s*\[?\s*[a-z_]+\s*\([^)]*\)\s*\]?\s*$/i;
 
 function cleanMessage(text) {
