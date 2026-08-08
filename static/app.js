@@ -74,3 +74,15 @@ if (visual && spotlight && matchMedia("(hover: hover)").matches) {
     spotlight.style.top = `${e.clientY - rect.top}px`;
   });
 }
+
+/* strip the viewer's watermark once its shadow DOM is ready */
+const viewer = document.querySelector("spline-viewer");
+if (viewer) {
+  const strip = () => {
+    const logo = viewer.shadowRoot?.querySelector("#logo");
+    if (logo) logo.remove();
+    return Boolean(logo);
+  };
+  const timer = setInterval(() => { if (strip()) clearInterval(timer); }, 300);
+  setTimeout(() => clearInterval(timer), 15000);
+}

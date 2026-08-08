@@ -123,8 +123,8 @@ main { max-width: var(--content-max-w); margin: 0 auto; padding: 0 1.5rem 4rem; 
   display: grid; gap: 2rem; align-items: center;
   grid-template-columns: minmax(0, 46rem);
 }
-@media (min-width: 900px) {
-  .hero { grid-template-columns: minmax(0, 46rem) minmax(280px, 1fr); }
+@media (min-width: 768px) {
+  .hero { grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); }
 }
 
 /* 3D scene card: dark surface with a cursor spotlight */
