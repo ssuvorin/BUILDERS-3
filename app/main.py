@@ -6,12 +6,12 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import context_dev, sops, weather
+from app import context_dev, sops, voice_broker, weather
 from app.config import ROOT_DIR, SITE_LOCATION
 from app.policy import extract_policy
 from app.verdict import assess
@@ -68,6 +68,35 @@ class WeatherRequest(BaseModel):
 
 class LookupRequest(BaseModel):
     url: str
+
+
+class LeaseRequest(BaseModel):
+    lease_id: str
+
+
+@app.post("/api/voice-lease")
+def voice_lease_acquire(response: Response) -> dict:
+    """One active voice session per deployment: acquire the lease or get busy."""
+    lease_id = voice_broker.acquire()
+    if lease_id is None:
+        response.status_code = 409
+        return {"granted": False, "reason": "another voice session is active"}
+    return {"granted": True, "lease_id": lease_id,
+            "heartbeat_seconds": int(voice_broker.LEASE_TTL_SECONDS // 3)}
+
+
+@app.post("/api/voice-lease/heartbeat")
+def voice_lease_heartbeat(req: LeaseRequest, response: Response) -> dict:
+    if not voice_broker.heartbeat(req.lease_id):
+        response.status_code = 410
+        return {"ok": False, "reason": "lease lost"}
+    return {"ok": True}
+
+
+@app.post("/api/voice-lease/release")
+def voice_lease_release(req: LeaseRequest) -> dict:
+    voice_broker.release(req.lease_id)
+    return {"ok": True}
 
 
 @app.get("/health")

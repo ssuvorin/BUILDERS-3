@@ -43,21 +43,64 @@ function sessionOptions(connectionType) {
     agentId: AGENT_ID,
     connectionType,
     onConnect: () => setState("listening"),
-    onDisconnect: () => { conversation = null; setState("idle"); },
+    onDisconnect: () => { conversation = null; releaseLease(); setState("idle"); },
     onModeChange: ({ mode }) => setState(mode === "speaking" ? "speaking" : "listening"),
     onMessage: ({ source, message }) => addLine(source, message),
     onError: () => { voiceStatus.textContent = "Connection error — tap to retry"; },
   };
 }
 
+/* ---------- session lease (backend enforces one active session) ---------- */
+
+let lease = null;          // { id, timer }
+
+async function acquireLease() {
+  const resp = await fetch("/api/voice-lease", { method: "POST" });
+  if (resp.status === 409) return null;
+  const data = await resp.json();
+  const interval = (data.heartbeat_seconds ?? 15) * 1000;
+  const timer = setInterval(async () => {
+    try {
+      const hb = await fetch("/api/voice-lease/heartbeat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lease_id: data.lease_id }),
+      });
+      if (!hb.ok) stop("Session taken over elsewhere");
+    } catch { /* transient network blip; lease TTL is the arbiter */ }
+  }, interval);
+  return { id: data.lease_id, timer };
+}
+
+function releaseLease() {
+  if (!lease) return;
+  clearInterval(lease.timer);
+  const body = JSON.stringify({ lease_id: lease.id });
+  lease = null;
+  navigator.sendBeacon?.("/api/voice-lease/release", new Blob([body], { type: "application/json" }))
+    || fetch("/api/voice-lease/release", { method: "POST", headers: { "Content-Type": "application/json" }, body });
+}
+
 async function start() {
-  if (starting || conversation) return; // never allow a second parallel session
+  if (starting || conversation) return; // one session per tab, ever
   starting = true;
   setState("connecting");
+  try {
+    lease = await acquireLease();
+  } catch {
+    lease = null;
+  }
+  if (!lease) {
+    starting = false;
+    setState("idle");
+    voiceStatus.textContent = "Another session is active — try again in a moment";
+    return;
+  }
   try {
     await navigator.mediaDevices.getUserMedia({ audio: true });
   } catch {
     starting = false;
+    releaseLease();
     setState("idle");
     voiceStatus.textContent = "Microphone blocked — allow mic access and tap again";
     return;
@@ -69,20 +112,23 @@ async function start() {
       conversation = await Conversation.startSession(sessionOptions("websocket"));
     } catch {
       conversation = null;
-      setState("idle");
       voiceStatus.textContent = "Connection failed — tap to retry";
     }
   } finally {
     starting = false;
-    if (!conversation && talkBtn.dataset.state === "connecting") setState("idle");
+    if (!conversation) {
+      releaseLease();
+      if (talkBtn.dataset.state === "connecting") setState("idle");
+    }
   }
-  if (conversation) channel.postMessage("session-started");
 }
 
-async function stop() {
+async function stop(reason) {
   const c = conversation;
   conversation = null;
+  releaseLease();
   setState("idle");
+  if (reason) voiceStatus.textContent = reason;
   await c?.endSession();
 }
 
@@ -91,11 +137,7 @@ talkBtn.addEventListener("click", () => {
   conversation ? stop() : start();
 });
 
-/* one session per browser: if another tab starts a session, end ours */
-const channel = new BroadcastChannel("heatsafe-voice");
-channel.onmessage = (e) => {
-  if (e.data === "session-started" && (conversation || starting)) stop();
-};
+window.addEventListener("pagehide", releaseLease);
 
 /* ---------- conditions strip ---------- */
 

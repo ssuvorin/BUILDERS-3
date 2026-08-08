@@ -230,3 +230,34 @@ def test_b5_policy_parsed_from_sop_not_hardcoded():
 def test_health_reports_loaded_docs():
     body = client.get("/health").json()
     assert body["ok"] and body["sop_docs"] == 3 and body["policy_loaded"]
+
+
+# --- voice session lease: one active session per deployment -----------------
+
+def test_voice_lease_single_session(monkeypatch):
+    from app import voice_broker
+    monkeypatch.setattr(voice_broker, "_current", None)
+
+    first = client.post("/api/voice-lease")
+    assert first.status_code == 200 and first.json()["granted"]
+    lease_id = first.json()["lease_id"]
+
+    second = client.post("/api/voice-lease")
+    assert second.status_code == 409 and not second.json()["granted"]
+
+    assert client.post("/api/voice-lease/heartbeat", json={"lease_id": lease_id}).json()["ok"]
+    client.post("/api/voice-lease/release", json={"lease_id": lease_id})
+    assert client.post("/api/voice-lease").json()["granted"]
+
+
+def test_voice_lease_expires_when_holder_goes_silent(monkeypatch):
+    import time as _time
+
+    from app import voice_broker
+    monkeypatch.setattr(voice_broker, "_current", None)
+    lease_id = voice_broker.acquire()
+    assert lease_id is not None
+    # simulate a crashed tab: TTL passes with no heartbeat
+    voice_broker._current.expires_at = _time.monotonic() - 1
+    assert not voice_broker.heartbeat(lease_id)
+    assert voice_broker.acquire() is not None
