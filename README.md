@@ -32,7 +32,7 @@ guesses.** Stop/go decisions always belong to the supervisor.
 
 ## Architecture
 
-![HeatSafe architecture and decision flow](docs/architecture-flow.svg)
+![HeatSafe architecture and decision flow](docs/architecture-flow.png)
 
 ```
 Worker voice ⇄ ElevenLabs Agent (prompt: agent/prompt.md)
