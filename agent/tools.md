@@ -49,15 +49,23 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
     "path_params_schema": [],
     "query_params_schema": [],
     "request_body_schema": {
+      "id": "body",
       "type": "object",
       "description": "Search request over company safety documents.",
-      "required": ["query"],
-      "properties": {
-        "query": {
+      "required": true,
+      "value_type": "llm_prompt",
+      "properties": [
+        {
+          "id": "query",
           "type": "string",
-          "description": "The worker's question rephrased as a short search query over company safety documents. Keep the key nouns, e.g. \"scaffold pre-use checks\", \"harness inspection\", \"wind limit scaffold work\". Strip filler words."
+          "description": "The worker's question rephrased as a short search query over company safety documents. Keep the key nouns, e.g. \"scaffold pre-use checks\", \"harness inspection\", \"wind limit scaffold work\". Strip filler words.",
+          "required": true,
+          "value_type": "llm_prompt",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null
         }
-      }
+      ]
     },
     "request_headers": [],
     "content_type": "application/json",
@@ -91,15 +99,23 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
     "path_params_schema": [],
     "query_params_schema": [],
     "request_body_schema": {
+      "id": "body",
       "type": "object",
       "description": "Activity to assess against the weather policy.",
-      "required": ["activity"],
-      "properties": {
-        "activity": {
+      "required": true,
+      "value_type": "llm_prompt",
+      "properties": [
+        {
+          "id": "activity",
           "type": "string",
-          "description": "The physical activity the user is asking about, as a short phrase. Examples: \"working on the scaffold\", \"handling sheet materials\", \"crane lift\", \"external work\". If the user asks generally what to work on today, use \"external work\"."
+          "description": "The physical activity the user is asking about, as a short phrase. Examples: \"working on the scaffold\", \"handling sheet materials\", \"crane lift\", \"external work\". If the user asks generally what to work on today, use \"external work\".",
+          "required": true,
+          "value_type": "llm_prompt",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null
         }
-      }
+      ]
     },
     "request_headers": [],
     "content_type": "application/json",
@@ -133,15 +149,23 @@ Deployed backend: `https://13.143.65.45.sslip.io` (systemd `heatsafe.service` + 
     "path_params_schema": [],
     "query_params_schema": [],
     "request_body_schema": {
+      "id": "body",
       "type": "object",
       "description": "Official guidance page to fetch.",
-      "required": ["url"],
-      "properties": {
-        "url": {
+      "required": true,
+      "value_type": "llm_prompt",
+      "properties": [
+        {
+          "id": "url",
           "type": "string",
-          "description": "Full HTTPS URL of an official guidance page. Prefer official sources: https://www.hse.gov.uk/work-at-height/index.htm for work-at-height guidance, https://www.mohre.gov.ae for UAE labour rules. Never use random blogs or forums."
+          "description": "Full HTTPS URL of an official guidance page. Prefer official sources: https://www.hse.gov.uk/work-at-height/index.htm for work-at-height guidance, https://www.mohre.gov.ae for UAE labour rules. Never use random blogs or forums.",
+          "required": true,
+          "value_type": "llm_prompt",
+          "dynamic_variable": "",
+          "constant_value": "",
+          "enum": null
         }
-      }
+      ]
     },
     "request_headers": [],
     "content_type": "application/json",
