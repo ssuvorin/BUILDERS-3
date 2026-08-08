@@ -222,3 +222,13 @@ def service_worker() -> FileResponse:
         media_type="application/javascript",
         headers={"Service-Worker-Allowed": "/"},
     )
+
+
+@app.get("/flow")
+def architecture_flow() -> FileResponse:
+    """The architecture and decision-flow diagram, rendered.
+
+    Lives in docs/ because it is documentation, but GitHub serves .html as
+    source rather than rendering it — so it gets a route.
+    """
+    return FileResponse(Path(ROOT_DIR) / "docs" / "architecture-flow.html")
