@@ -104,7 +104,7 @@ Check: `curl localhost:8000/health` → `{"ok":true,"sop_docs":4,"policy_loaded"
 make eval
 ```
 
-36 deterministic cases: the eval spec (section B) plus regression tests for
+37 deterministic cases: the eval spec (section B) plus regression tests for
 retrieval quality, weather staleness/fallback, the learn list and the voice
 lease pool. A quarter of them verify refusal/deferral behaviour — in a
 work-at-height domain, that is the product.

@@ -98,11 +98,11 @@ rule takes over regardless of the weather.
 > into tool responses — retrieval chunks carry their source document,
 > thresholds are regex-parsed from the policy table with the exact quote
 > attached, and the weather tool returns an explicit "cannot verify" state.
-> That let us write 36 deterministic evals for behaviour that is usually
+> That let us write 37 deterministic evals for behaviour that is usually
 > vibes: the SOP-beats-internet case, the gust edge case, and
 > weather-source-down-never-assume-fine.
 
-<!-- 36 as of the last count — verify with: grep -c "def test_" tests/test_evals.py
+<!-- 37 as of the last count — verify with: grep -c "def test_" tests/test_evals.py
      Re-check before recording; it has been rising all morning. -->
 
 **If there's time, the strongest version of this answer:** we found two of our

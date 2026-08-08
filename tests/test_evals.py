@@ -404,6 +404,19 @@ def test_web_search_ranks_official_sources_first():
     assert "gov.ae" in ranked[0]["url"]
 
 
+def test_web_search_official_means_hostname_not_substring():
+    """'.gov' in the path or a spoofed subdomain must not outrank a real
+    regulator — the agent is told to trust the first result."""
+    from app import websearch
+    ranked = websearch.rank([
+        {"title": "Spoof", "url": "https://osha.gov.phish.example/x", "description": ""},
+        {"title": "Path trick", "url": "https://example.com/page.gov.html", "description": ""},
+        {"title": "OSHA", "url": "https://www.osha.gov/heat", "description": ""},
+        {"title": "UAE portal", "url": "https://u.ae/en/safety", "description": ""},
+    ])
+    assert [r["title"] for r in ranked[:2]] == ["OSHA", "UAE portal"]
+
+
 # --- voice session leases: capacity-based slot pool -------------------------
 
 def _fresh_memory_broker(monkeypatch, max_sessions):

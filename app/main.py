@@ -121,15 +121,17 @@ def learn_list() -> dict:
 @app.post("/tools/search_sops")
 def search_sops(req: SearchRequest) -> dict:
     """Retrieve SOP chunks with source attribution. Empty results mean the
-    agent moves down the source hierarchy (web_lookup), never invents."""
+    agent moves down the source hierarchy (web_search → web_lookup), never
+    invents."""
     results = sops.search(req.query, _CHUNKS)
     topic = f"{results[0]['source']} — {results[0]['section']}" if results else None
     asklog.record("procedure", req.query, topic, covered=bool(results))
     return {
         "results": results,
-        "guidance": "No company SOP covers this — say so, then offer official "
-        "guidance via web_lookup (flag it as not company policy). Refuse and "
-        "defer only if that finds nothing. Do not invent."
+        "guidance": "No company SOP covers this — say so, then look for official "
+        "guidance: web_search first, then web_lookup the best result (flag it as "
+        "not company policy). Refuse and defer only if that finds nothing. "
+        "Do not invent."
         if not results
         else "Answer from these chunks only; name the source document aloud.",
     }
