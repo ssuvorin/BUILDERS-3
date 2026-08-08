@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import context_dev, sops, voice_broker, weather
+from app import asklog, context_dev, sops, voice_broker, weather
 from app.config import ROOT_DIR, SITE_LOCATION
 from app.policy import extract_policy
 from app.verdict import assess
@@ -111,11 +111,20 @@ def health() -> dict:
     }
 
 
+@app.get("/analytics/learn-list")
+def learn_list() -> dict:
+    """Supervisor-facing: most-asked topics (onboarding / toolbox-talk
+    material) and questions no company document covers (SOP gaps)."""
+    return asklog.learn_list()
+
+
 @app.post("/tools/search_sops")
 def search_sops(req: SearchRequest) -> dict:
     """Retrieve SOP chunks with source attribution. Empty results mean the
     agent moves down the source hierarchy (web_lookup), never invents."""
     results = sops.search(req.query, _CHUNKS)
+    topic = f"{results[0]['source']} — {results[0]['section']}" if results else None
+    asklog.record("procedure", req.query, topic, covered=bool(results))
     return {
         "results": results,
         "guidance": "No company SOP covers this — say so, then offer official "
@@ -127,7 +136,7 @@ def search_sops(req: SearchRequest) -> dict:
 
 
 @app.post("/tools/check_weather")
-async def check_weather(req: WeatherRequest) -> dict:
+async def check_weather(req: WeatherRequest, request: Request) -> dict:
     """Site conditions vs the policy bands. Answers from the warm snapshot;
     blocks on a live fetch only when there is no fresh reading to serve
     (first boot, or a stale location the background refresher doesn't cover)."""
@@ -139,6 +148,9 @@ async def check_weather(req: WeatherRequest) -> dict:
     result = assess(reading, req.activity, _POLICY)
     if age is not None:
         result["reading_age_seconds"] = int(age)
+    if "x-heatsafe-ui" not in request.headers:  # UI page-load polls aren't worker questions
+        asklog.record("conditions", req.activity, f"conditions: {req.activity.lower().strip()}",
+                      covered=result.get("verdict") != "unknown")
     return result
 
 

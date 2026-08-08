@@ -16,7 +16,7 @@ async function checkConditions() {
   try {
     const resp = await fetch("/tools/check_weather", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-HeatSafe-UI": "1" },
       body: JSON.stringify({ activity: "external work" }),
     });
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);

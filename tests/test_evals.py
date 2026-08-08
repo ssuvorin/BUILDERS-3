@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi.testclient import TestClient
 
-from app import sops
+from app import asklog, sops
 from app.main import app
 from app.policy import extract_policy
 from app.verdict import assess
@@ -234,6 +234,90 @@ def test_health_reports_loaded_docs():
     expected_docs = len({c.filename for c in CHUNKS})
     body = client.get("/health").json()
     assert body["ok"] and body["sop_docs"] == expected_docs >= 3 and body["policy_loaded"]
+
+
+# --- retrieval quality: how workers talk vs how SOPs are written ------------
+
+def test_search_matches_across_word_forms():
+    """Stemming: spoken plurals/verb forms find the written SOP form."""
+    results = sops.search("checking harnesses before climbing", CHUNKS)
+    assert results and "MER-SOP-014" in results[0]["source"]
+    assert "Harness" in results[0]["section"]
+
+
+def test_search_translates_worker_slang():
+    """"Cherry picker" is nowhere in the corpus — the SOP says MEWP."""
+    results = sops.search("do I need a harness on a cherry picker", CHUNKS)
+    assert results and "Harness" in results[0]["section"]
+
+
+def test_search_ranks_the_right_section_first():
+    for query, doc, section_word in (
+        ("wind limit for scaffold work", "MER-SOP-021", "Wind"),
+        ("is it too hot to work", "MER-SOP-021", "heat"),
+        ("tools on the platform", "MER-SOP-014", "platform"),
+    ):
+        top = sops.search(query, CHUNKS)[0]
+        assert doc in top["source"] and section_word in top["section"]
+
+
+def test_search_still_returns_empty_for_uncovered_questions():
+    """Better recall must not buy itself with false positives — the empty
+    result drives the escalation path (user-flows Flow G)."""
+    for query in ("how long will that take",
+                  "where is the canteen",
+                  "order more cement bags"):
+        assert sops.search(query, CHUNKS) == []
+
+
+# --- learn list: most-asked topics + coverage gaps ---------------------------
+
+def test_learn_list_ranks_most_asked_topics():
+    asklog.reset()
+    for query in ("how do I inspect my harness",
+                  "harness inspection before use",
+                  "set up the MEWP for the east elevation"):
+        client.post("/tools/search_sops", json={"query": query})
+    body = client.get("/analytics/learn-list").json()
+    assert body["total_questions"] == 3
+    top = body["top_topics"][0]
+    assert top["count"] == 2 and "MER-SOP-014" in top["topic"]
+    assert len(top["sample_questions"]) == 2
+
+
+def test_learn_list_surfaces_coverage_gaps():
+    """Questions no SOP covers are the learn list's other half: candidates
+    for new documentation, counted per distinct question."""
+    asklog.reset()
+    for _ in range(2):
+        client.post("/tools/search_sops",
+                    json={"query": "set up the MEWP for the east elevation"})
+    body = client.get("/analytics/learn-list").json()
+    gap = body["coverage_gaps"][0]
+    assert gap["count"] == 2 and "mewp" in gap["question"]
+    assert body["top_topics"] == []
+
+
+def test_learn_list_includes_conditions_questions():
+    asklog.reset()
+    asklog.record("conditions", "crane lift", "conditions: crane lift", covered=True)
+    body = client.get("/analytics/learn-list").json()
+    assert body["top_topics"][0]["topic"] == "conditions: crane lift"
+
+
+def test_weather_outage_is_not_a_documentation_gap():
+    asklog.reset()
+    asklog.record("conditions", "scaffold work", "conditions: scaffold work", covered=False)
+    assert client.get("/analytics/learn-list").json()["coverage_gaps"] == []
+
+
+def test_ui_condition_polls_are_not_recorded():
+    """The conditions strip on / and /test polls check_weather on every page
+    load — page views must not show up as worker questions."""
+    asklog.reset()
+    client.post("/tools/check_weather", json={"activity": "external work"},
+                headers={"X-HeatSafe-UI": "1"})
+    assert asklog.learn_list()["total_questions"] == 0
 
 
 # --- voice session leases: capacity-based slot pool -------------------------
