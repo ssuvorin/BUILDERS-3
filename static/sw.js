@@ -45,6 +45,10 @@ self.addEventListener("fetch", (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/")))
+      .catch(() => caches.match(request).then((cached) =>
+        // The HTML shell is a fallback for navigations only — serving it in
+        // place of a script or stylesheet would "succeed" with wrong content.
+        cached || (request.mode === "navigate" ? caches.match("/") : Response.error())
+      ))
   );
 });

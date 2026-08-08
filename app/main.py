@@ -215,7 +215,7 @@ def test_console() -> FileResponse:
     return FileResponse(Path(ROOT_DIR) / "static" / "test.html")
 
 
-@app.get("/sw.js")
+@app.api_route("/sw.js", methods=["GET", "HEAD"])
 def service_worker() -> FileResponse:
     return FileResponse(
         Path(ROOT_DIR) / "static" / "sw.js",
