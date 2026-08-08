@@ -1,0 +1,101 @@
+# TECH-SPEC — Meridian Site Assistant
+
+## 1. Problem
+
+Construction workers get stuck mid-task with their hands full — on a scaffold,
+in gloves, in the wind. The answers they need are split between the company's
+own SOPs (which almost nobody re-reads on site) and live conditions (is the
+wind over the limit right now?). Asking a generic chatbot is worse than
+useless in this domain: it will confidently quote an internet threshold that
+is *not* the company's policy, and people fall off scaffolding.
+
+Voice is not a gimmick here — it is the only interface that works when both
+hands are on a ladder. The user is the worker on site; the buyer is the
+contractor whose SOPs become the assistant's source of truth.
+
+## 2. Architecture
+
+```
+Worker voice ⇄ ElevenLabs Agent (system prompt: agent/prompt.md)
+                     │  three webhook tools (agent/tools.md)
+                     ▼
+        FastAPI backend (app/, Python)
+        ├── POST /tools/search_sops    keyword retrieval (freq-weighted overlap)
+        │                              over demo-data/*.md, source attribution
+        │                              in every chunk; empty result ⇒ agent
+        │                              must refuse, not invent
+        ├── POST /tools/check_weather  context.dev /web/extract pulls live
+        │                              wind/gust/temp for the site location;
+        │                              compared in app/verdict.py against
+        │                              thresholds PARSED from the SOP table
+        │                              (app/sops.py, regex over MC-POL-014) —
+        │                              nothing hardcoded
+        └── POST /tools/web_lookup     context.dev /web/scrape/markdown for
+                                       official guidance (HSE etc.), explicitly
+                                       ranked below company SOPs
+```
+
+Data flow for the key demo moment: worker asks "can we work on the scaffold?"
+→ agent calls `check_weather("working on scaffolding")` → backend fetches live
+wind via context.dev → matches the activity to the 18 mph row parsed from the
+Meridian policy → returns go/no-go + figures + source → agent speaks the
+verdict, names MC-POL-014, and defers the final call to the supervisor.
+
+Source precedence (enforced in the agent prompt, supported by tool design):
+**company SOP > regulation/official guidance > manufacturer docs > general
+web** — and if general web is the only source, the agent says so aloud.
+
+Safety framing: the agent advises, never decides. Refusal and deferral are
+first-class behaviours with their own eval cases.
+
+## 3. Tool rationale
+
+- **ElevenLabs Agents** — the entire voice loop (STT, turn-taking,
+  interruption, TTS) out of the box, with webhook tools as the integration
+  point. Building interruptible full-duplex voice ourselves was not a
+  6-hour job; their agent platform made it a config task, letting us spend
+  the time on retrieval, precedence and refusal logic — the actual product.
+- **context.dev** — the live-data layer. `/web/extract` turns a weather page
+  into typed JSON (wind mph, gusts, temp) with one call and a JSON schema —
+  no weather-API key, no parsing code. `/web/scrape/markdown` gives clean
+  markdown of HSE guidance pages for the regulation-lookup tool. One vendor,
+  two live-web capabilities.
+- **Devin** — built the repo spec-first: constitution (SOLID/KISS/size
+  limits/TDD) in `.specify/memory/constitution.md`, feature spec in
+  `specs/001-site-voice-assistant/spec.md`, then implementation with the
+  eval set written against the spec's section B. The playbooks/specs are
+  committed, so the steering is visible, not just the output.
+
+## 4. Feasibility (the 6-hour scope)
+
+Three things in scope, everything else cut (spec: Out of Scope):
+
+1. Voice Q&A over uploaded SOPs + live web, sources named aloud.
+2. Weather-aware go/no-go where the threshold comes from the SOP.
+3. Refusal/escalation behaviour, verified by evals.
+
+Deliberate simplifications that keep it honest but small:
+- Retrieval is frequency-weighted keyword overlap, not embeddings — 3 SOP
+  documents don't need a vector store, and empty-result semantics (refuse!)
+  matter more than recall.
+- SOPs are pre-loaded markdown files; no ingestion pipeline.
+- One fictional company, one site location (env-configurable).
+- 12 pytest evals run the tool layer directly (`make eval`) — deterministic,
+  no network, weather readings injected as fixtures.
+
+## 5. Extensibility (v2)
+
+- **Real SOP ingestion**: upload PDF/DOCX, chunk + embed, per-company
+  namespaces; threshold extraction becomes an LLM-verified structured pass
+  instead of a table regex.
+- **True conversational evals**: run section B end-to-end through the
+  ElevenLabs conversation API and score transcripts, not just tools.
+- **Site awareness**: geolocation per crew, multiple sites, weather alerts
+  pushed proactively ("wind will cross your scaffold limit at 14:00").
+- **Escalation that completes the loop**: "ask your supervisor" becomes a
+  one-tap voice message to the supervisor with the question attached.
+- **Offline mode**: cached SOPs + last-known weather with an explicit
+  staleness warning — named as a real-world requirement, deliberately not
+  faked in the demo.
+- **Audit trail**: every safety answer logged with source, timestamps and
+  the exact SOP revision quoted — contractors need this for HSE reviews.
