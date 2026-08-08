@@ -106,6 +106,12 @@ def test_b3_13_sheet_handling_stops_at_lower_limit_any_height():
     assert any("any height" in r for r in result["reasons"])
 
 
+def test_b3_13b_sheet_words_survive_plurals_and_punctuation():
+    reading = WeatherReading(available=True, wind_speed_kmh=_kmh(16), temp_c=30.0)
+    for activity in ("carrying sheets up", "sheeting, then hoisting"):
+        assert assess(reading, activity, POLICY, now=WINTER_NOON)["verdict"] == "no-go"
+
+
 def test_b3_14_heat_bands_flagged():
     elevated = assess(
         WeatherReading(available=True, wind_speed_kmh=_kmh(5), temp_c=43.0),
@@ -188,6 +194,29 @@ def test_eval13_stale_reading_is_never_served():
     assert not reading.available
     assert age is not None and age > 600
     del w._state["StaleTown"]
+
+
+def test_stale_reading_triggers_a_live_refetch(monkeypatch):
+    """A stale snapshot must not be a dead end: the endpoint re-fetches live
+    instead of answering 'unknown' forever."""
+    import time as _time
+
+    from app import main
+    from app import weather as w
+
+    fresh = WeatherReading(available=True, wind_speed_kmh=_kmh(10), temp_c=30.0)
+
+    async def fake_refresh(_location):
+        return fresh
+
+    monkeypatch.setitem(w._state, "StaleTown", (_time.monotonic() - 3600, fresh))
+    monkeypatch.setattr(main.weather, "refresh", fake_refresh)
+    resp = client.post(
+        "/tools/check_weather", json={"activity": "external work", "location": "StaleTown"}
+    )
+    body = resp.json()
+    assert body["verdict"] != "unknown"
+    assert body["reading_age_seconds"] == 0
 
 
 def test_b5_policy_parsed_from_sop_not_hardcoded():

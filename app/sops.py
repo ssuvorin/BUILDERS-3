@@ -71,11 +71,11 @@ def search(query: str, chunks: list[Chunk], top_k: int = 3) -> list[dict]:
     q_tokens = _tokens(query)
     if not q_tokens:
         return []
-    doc_freq = {t: sum(1 for c in chunks if t in _tokens(c.text)) or 1 for t in q_tokens}
+    bodies = [(chunk, (chunk.section + " " + chunk.text).lower()) for chunk in chunks]
+    token_sets = [_tokens(body) for _, body in bodies]
+    doc_freq = {t: sum(1 for ts in token_sets if t in ts) or 1 for t in q_tokens}
     scored = []
-    for chunk in chunks:
-        body = (chunk.section + " " + chunk.text).lower()
-        chunk_tokens = _tokens(body)
+    for (chunk, body), chunk_tokens in zip(bodies, token_sets):
         overlap = q_tokens & chunk_tokens
         coverage = len(overlap) / len(q_tokens)
         if coverage < 0.3:

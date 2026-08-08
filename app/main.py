@@ -6,17 +6,17 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-import httpx
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from app import sops, weather
-from app.config import CONTEXT_DEV_API_KEY, CONTEXT_DEV_BASE_URL, ROOT_DIR, SITE_LOCATION
+from app import context_dev, sops, weather
+from app.config import ROOT_DIR, SITE_LOCATION
 from app.policy import extract_policy
 from app.verdict import assess
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("heatsafe")
 
 
@@ -117,10 +117,9 @@ async def web_lookup(req: LookupRequest) -> dict:
     except context_dev.ContextDevError as exc:
         return {"available": False, "error": str(exc)}
     return {
-        "markdown": data.get("markdown", "")[:6000],
         "available": True,
         "source": req.url,
-        "markdown": markdown[:6000],
+        "markdown": data.get("markdown", "")[:6000],
         "guidance": "External source — outranked by company SOPs. Name it and flag "
         "it is not company policy.",
     }

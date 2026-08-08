@@ -1,4 +1,5 @@
 """Go/no-go composition: live reading + time of day vs the parsed policy."""
+import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -6,7 +7,7 @@ from app.policy import WeatherPolicy
 from app.weather import WeatherReading
 
 _MPH_PER_KMH = 0.621371
-_SHEET_WORDS = {"sheet", "sheeting", "panel", "panels", "formwork", "shuttering"}
+_SHEET_WORDS = {"sheet", "sheets", "sheeting", "panel", "panels", "formwork", "shuttering"}
 _SITE_TZ = ZoneInfo("Asia/Dubai")
 
 
@@ -77,7 +78,7 @@ def assess(
                        f"restricted band (from {policy.restricted_wind_mph:g} mph sustained or "
                        f"{policy.restricted_gust_mph:g} mph gusts): no work above 6 m, no "
                        "sheeting, panel handling or material hoisting.")
-    if _tokens_overlap(activity) and wind_mph >= policy.sheet_stop_mph:
+    if _is_sheet_work(activity) and wind_mph >= policy.sheet_stop_mph:
         verdict = "no-go"
         reasons.append(f"Sheet/panel handling stops at {policy.sheet_stop_mph:g} mph sustained, "
                        f"any height — current sustained wind is {wind_mph:.0f} mph.")
@@ -99,5 +100,5 @@ def assess(
     }
 
 
-def _tokens_overlap(activity: str) -> bool:
-    return bool(_SHEET_WORDS & set(activity.lower().split()))
+def _is_sheet_work(activity: str) -> bool:
+    return bool(_SHEET_WORDS & set(re.findall(r"[a-z]+", activity.lower())))

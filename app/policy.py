@@ -25,6 +25,11 @@ class WeatherPolicy:
     source_doc: str
 
 
+_MONTHS = {m: i + 1 for i, m in enumerate(
+    ["january", "february", "march", "april", "may", "june",
+     "july", "august", "september", "october", "november", "december"])}
+_MONTH_NAMES = "|".join(_MONTHS)
+
 _RESTRICTED = re.compile(
     r"\|\s*Restricted\s*\|\s*(?P<s_lo>\d+)[–-](?P<s_hi>\d+)\s*mph[^|]*\|"
     r"\s*(?P<g_lo>\d+)[–-](?P<g_hi>\d+)\s*mph"
@@ -32,11 +37,10 @@ _RESTRICTED = re.compile(
 _SHEET = re.compile(r"stop at\s*\**(?P<mph>\d+)\s*mph sustained", re.IGNORECASE)
 _HEAT = re.compile(r"\|\s*Elevated\s*\|\s*(?P<lo>\d+)[–-](?P<hi>\d+)\s*°C")
 _MIDDAY_HOURS = re.compile(r"prohibited between\s*\**(\d{1,2}:\d{2})\**\s*and\s*\**(\d{1,2}:\d{2})")
-_MIDDAY_DATES = re.compile(r"[Bb]etween\s*\**(\d{1,2})\s+(\w+)\**\s+and\s+\**(\d{1,2})\s+(\w+)")
-
-_MONTHS = {m: i + 1 for i, m in enumerate(
-    ["january", "february", "march", "april", "may", "june",
-     "july", "august", "september", "october", "november", "december"])}
+_MIDDAY_DATES = re.compile(
+    rf"between\s*\**(\d{{1,2}})\s+({_MONTH_NAMES})\**\s+and\s+\**(\d{{1,2}})\s+({_MONTH_NAMES})",
+    re.IGNORECASE,
+)
 
 
 def extract_policy(chunks: list[Chunk]) -> WeatherPolicy | None:
