@@ -75,6 +75,23 @@ body.test-page {
   border-bottom-left-radius: 4px;
 }
 
+/* thinking indicator: three pulsing dots while the agent works */
+.msg-text.dots { display: flex; gap: 4px; align-items: center; min-height: 21px; }
+.msg-text.dots i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--fg-subtle);
+  animation: dot 1.2s ease-in-out infinite;
+}
+.msg-text.dots i:nth-child(2) { animation-delay: .2s; }
+.msg-text.dots i:nth-child(3) { animation-delay: .4s; }
+@keyframes dot {
+  0%, 60%, 100% { opacity: .35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .msg-text.dots i { animation: none; }
+}
+
 /* ---------- orb ---------- */
 .voice-center { display: grid; justify-items: center; gap: 16px; padding: 2rem 0 1.5rem; }
 

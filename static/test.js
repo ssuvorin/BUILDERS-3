@@ -37,10 +37,50 @@ function cleanMessage(text) {
     .trim();
 }
 
+/* live rendering: agent lines type out word-by-word, roughly in step with speech */
+let typer = null;
+
+function finishTyper() {
+  if (!typer) return;
+  clearInterval(typer.id);
+  typer.el.textContent = typer.text;
+  typer = null;
+}
+
+function typeInto(el, text) {
+  finishTyper();
+  const words = text.split(/(\s+)/);
+  let i = 0;
+  const id = setInterval(() => {
+    i += 2;
+    el.textContent = words.slice(0, i).join("");
+    transcript.scrollTop = transcript.scrollHeight;
+    if (i >= words.length) finishTyper();
+  }, 90);
+  typer = { id, el, text };
+}
+
+function showThinking() {
+  if (document.getElementById("thinking")) return;
+  transcript.hidden = false;
+  const bubble = document.createElement("div");
+  bubble.className = "msg msg-agent";
+  bubble.id = "thinking";
+  bubble.innerHTML = '<span class="msg-label">HeatSafe</span>' +
+    '<p class="msg-text dots"><i></i><i></i><i></i></p>';
+  transcript.append(bubble);
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+function hideThinking() {
+  document.getElementById("thinking")?.remove();
+}
+
 function addLine(source, text) {
   const clean = cleanMessage(text);
   if (!clean) return;
   transcript.hidden = false;
+  hideThinking();
   const bubble = document.createElement("div");
   bubble.className = source === "user" ? "msg msg-user" : "msg msg-agent";
   const label = document.createElement("span");
@@ -48,9 +88,14 @@ function addLine(source, text) {
   label.textContent = source === "user" ? "You" : "HeatSafe";
   const body = document.createElement("p");
   body.className = "msg-text";
-  body.textContent = clean;
   bubble.append(label, body);
   transcript.append(bubble);
+  if (source === "user") {
+    body.textContent = clean;
+    showThinking(); // agent's turn — show it working until its line arrives
+  } else {
+    typeInto(body, clean);
+  }
   transcript.scrollTop = transcript.scrollHeight;
 }
 
@@ -59,8 +104,11 @@ function sessionOptions(connectionType) {
     agentId: AGENT_ID,
     connectionType,
     onConnect: () => setState("listening"),
-    onDisconnect: () => { conversation = null; releaseLease(); setState("idle"); },
-    onModeChange: ({ mode }) => setState(mode === "speaking" ? "speaking" : "listening"),
+    onDisconnect: () => { conversation = null; releaseLease(); hideThinking(); setState("idle"); },
+    onModeChange: ({ mode }) => {
+      if (mode === "speaking") hideThinking();
+      setState(mode === "speaking" ? "speaking" : "listening");
+    },
     onMessage: ({ source, message }) => addLine(source, message),
     onError: () => { voiceStatus.textContent = "Connection error — tap to retry"; },
   };
