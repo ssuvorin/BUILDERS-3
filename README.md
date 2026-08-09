@@ -2,6 +2,28 @@
 
 🎥 **[Watch the demo](https://www.loom.com/share/453bf5e27ab646ef82943947304f0707)** — a real voice conversation with the agent, including the live data fetch.
 
+> Built in one day at **[Dubai AI Hub] Builder Lab #3: Voice Agents Hackathon**
+> (Saturday, 8 August 2026, The British University in Dubai) by **Team 21**.
+> Sponsored by ElevenLabs (voice), Cognition's Devin (AI software engineer)
+> and context.dev (live web data for agents) — the challenge was to build a
+> voice-first AI agent that knows something real about the world: live web
+> data in via context.dev, built with AI coding agents (Devin), talking back
+> via ElevenLabs. The fictional client in this demo is named after the team.
+
+## Team 21
+
+| | GitHub |
+|---|---|
+| Sergey Suvorin | [@ssuvorin](https://github.com/ssuvorin) |
+| Silvia Mogas | [@SilviaMogas](https://github.com/SilviaMogas) |
+| Lucy Scott Brown | [@lucyscottbrown](https://github.com/lucyscottbrown) |
+| Sahand Sorouri | [@sahandsorouri](https://github.com/sahandsorouri) |
+| Ankita Biswas | [@zaireeeeen](https://github.com/zaireeeeen) |
+
+All five are collaborators on this repository — the judges asked for the
+codebase, not just the demo, so agentic engineering (spec-kit constitution,
+specs, evals) is part of the deliverable.
+
 HeatSafe Technologies builds voice-first operational safety copilots for
 frontline teams in high-risk environments — construction, oil & gas,
 utilities, ports and logistics. The engine is one and the same for every
